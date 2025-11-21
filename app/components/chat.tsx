@@ -405,6 +405,7 @@ export function ChatAction(props: {
   text: string;
   icon: JSX.Element;
   onClick: () => void;
+  showText?: boolean;
 }) {
   const iconRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -412,8 +413,9 @@ export function ChatAction(props: {
     full: 16,
     icon: 16,
   });
+  const showText = props.showText ?? false;
 
-  function updateWidth() {
+  const updateWidth = useCallback(() => {
     if (!iconRef.current || !textRef.current) return;
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
@@ -422,7 +424,23 @@ export function ChatAction(props: {
       full: textWidth + iconWidth,
       icon: iconWidth,
     });
-  }
+  }, []);
+
+  useEffect(() => {
+    if (showText) {
+      updateWidth();
+    }
+  }, [showText, props.text, updateWidth]);
+
+  const iconWidth = showText ? width.full : width.icon;
+  const textStyle = showText
+    ? ({
+        opacity: 1,
+        visibility: "visible",
+        width: "auto",
+        paddingLeft: "6px",
+      } as React.CSSProperties)
+    : undefined;
 
   return (
     <div
@@ -435,7 +453,7 @@ export function ChatAction(props: {
       onTouchStart={updateWidth}
       style={
         {
-          "--icon-width": `${width.icon}px`,
+          "--icon-width": `${iconWidth}px`,
           "--full-width": `${width.full}px`,
         } as React.CSSProperties
       }
@@ -443,7 +461,7 @@ export function ChatAction(props: {
       <div ref={iconRef} className={styles["icon"]}>
         {props.icon}
       </div>
-      <div className={styles["text"]} ref={textRef}>
+      <div className={styles["text"]} ref={textRef} style={textStyle}>
         {props.text}
       </div>
     </div>
@@ -613,6 +631,48 @@ export function ChatActions(props: {
             icon={<BottomIcon />}
           />
         )}
+
+        <ChatAction
+          onClick={() => setShowModelSelector(true)}
+          text={currentModelName}
+          icon={<RobotIcon />}
+          showText={true}
+        />
+
+        {showModelSelector && (
+          <Selector
+            defaultSelectedValue={`${currentModel}@${currentProviderName}`}
+            items={models.map((m) => ({
+              title: `${m.displayName}${
+                m?.provider?.providerName
+                  ? " (" + m?.provider?.providerName + ")"
+                  : ""
+              }`,
+              value: `${m.name}@${m?.provider?.providerName}`,
+            }))}
+            onClose={() => setShowModelSelector(false)}
+            onSelection={(s) => {
+              if (s.length === 0) return;
+              const [model, providerName] = getModelProvider(s[0]);
+              chatStore.updateTargetSession(session, (session) => {
+                session.mask.modelConfig.model = model as ModelType;
+                session.mask.modelConfig.providerName =
+                  providerName as ServiceProvider;
+                session.mask.syncGlobalConfig = false;
+              });
+              if (providerName == "ByteDance") {
+                const selectedModel = models.find(
+                  (m) =>
+                    m.name == model &&
+                    m?.provider?.providerName == providerName,
+                );
+                showToast(selectedModel?.displayName ?? "");
+              } else {
+                showToast(model);
+              }
+            }}
+          />
+        )}
         {/* {props.hitBottom && (
           <ChatAction
             onClick={props.showPromptModal}
@@ -626,6 +686,7 @@ export function ChatActions(props: {
             onClick={props.uploadImage}
             text={Locale.Chat.InputActions.UploadImage}
             icon={props.uploading ? <LoadingButtonIcon /> : <ImageIcon />}
+            showText={true}
           />
         )}
         {/* <ChatAction
@@ -672,47 +733,6 @@ export function ChatActions(props: {
             });
           }}
         />
-
-        <ChatAction
-          onClick={() => setShowModelSelector(true)}
-          text={currentModelName}
-          icon={<RobotIcon />}
-        />
-
-        {showModelSelector && (
-          <Selector
-            defaultSelectedValue={`${currentModel}@${currentProviderName}`}
-            items={models.map((m) => ({
-              title: `${m.displayName}${
-                m?.provider?.providerName
-                  ? " (" + m?.provider?.providerName + ")"
-                  : ""
-              }`,
-              value: `${m.name}@${m?.provider?.providerName}`,
-            }))}
-            onClose={() => setShowModelSelector(false)}
-            onSelection={(s) => {
-              if (s.length === 0) return;
-              const [model, providerName] = getModelProvider(s[0]);
-              chatStore.updateTargetSession(session, (session) => {
-                session.mask.modelConfig.model = model as ModelType;
-                session.mask.modelConfig.providerName =
-                  providerName as ServiceProvider;
-                session.mask.syncGlobalConfig = false;
-              });
-              if (providerName == "ByteDance") {
-                const selectedModel = models.find(
-                  (m) =>
-                    m.name == model &&
-                    m?.provider?.providerName == providerName,
-                );
-                showToast(selectedModel?.displayName ?? "");
-              } else {
-                showToast(model);
-              }
-            }}
-          />
-        )}
 
         {supportsCustomSize(currentModel) && (
           <ChatAction
