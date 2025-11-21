@@ -501,6 +501,7 @@ export function ImagePreviewer(props: {
     }
   };
 
+  return <></>;
   return (
     <div className={styles["image-previewer"]}>
       <PreviewActions
@@ -524,17 +525,15 @@ export function ImagePreviewer(props: {
           </div>
 
           <div>
-            <div className={styles["main-title"]}>NextChat</div>
-            <div className={styles["sub-title"]}>
-              github.com/ChatGPTNextWeb/ChatGPT-Next-Web
-            </div>
+            <div className={styles["main-title"]}>AIChat</div>
+            <div className={styles["sub-title"]}></div>
             <div className={styles["icons"]}>
-              <MaskAvatar avatar={config.avatar} />
+              {/* <MaskAvatar avatar={config.avatar} />
               <span className={styles["icon-space"]}>&</span>
               <MaskAvatar
                 avatar={mask.avatar}
                 model={session.mask.modelConfig.model}
-              />
+              /> */}
             </div>
           </div>
           <div>

@@ -188,10 +188,12 @@ export function SideBarHeader(props: {
         <div className={styles["sidebar-title-container"]}>
           <div className={styles["sidebar-title"]} data-tauri-drag-region>
             {title}
+            <div className={clsx(styles["sidebar-logo"], "no-dark")}>
+              {logo}
+            </div>
           </div>
           <div className={styles["sidebar-sub-title"]}>{subTitle}</div>
         </div>
-        <div className={clsx(styles["sidebar-logo"], "no-dark")}>{logo}</div>
       </div>
       {children}
     </Fragment>
@@ -232,6 +234,8 @@ export function SideBar(props: { className?: string }) {
   const config = useAppConfig();
   const chatStore = useChatStore();
   const [mcpEnabled, setMcpEnabled] = useState(false);
+  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "AI Chat";
+  const logoUrl = process.env.NEXT_PUBLIC_APP_LOGO_URL ?? "";
 
   useEffect(() => {
     // 检查 MCP 是否启用
@@ -250,13 +254,48 @@ export function SideBar(props: { className?: string }) {
       {...props}
     >
       <SideBarHeader
-        title="NextChat"
-        subTitle="Build your own AI assistant."
-        logo={<ChatGptIcon />}
+        title={appName}
+        subTitle={
+          <>
+            <div style={{ color: "var(--text-secondary)" }}>
+              <small>
+                <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
+                <br />
+                <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
+                  <li>Never input private or sensitive data.</li>
+                  <li>Never use AI for unlawful or harmful acts.</li>
+                  <li>
+                    Remember that its knowledge may be outdated or biased.
+                  </li>
+                  <li>Always verify its answers with reliable sources.</li>
+                </ul>
+              </small>
+            </div>
+          </>
+        }
+        logo={
+          logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={appName}
+              style={{
+                width: 70,
+                height: 70,
+                objectFit: "none",
+                position: "absolute",
+                objectPosition: "left",
+                top: "0px",
+                right: "0px",
+              }}
+            />
+          ) : (
+            <ChatGptIcon />
+          )
+        }
         shouldNarrow={shouldNarrow}
       >
         <div className={styles["sidebar-header-bar"]}>
-          <IconButton
+          {/* <IconButton 
             icon={<MaskIcon />}
             text={shouldNarrow ? undefined : Locale.Mask.Name}
             className={styles["sidebar-bar-button"]}
@@ -286,9 +325,9 @@ export function SideBar(props: { className?: string }) {
             className={styles["sidebar-bar-button"]}
             onClick={() => setshowDiscoverySelector(true)}
             shadow
-          />
+          /> */}
         </div>
-        {showDiscoverySelector && (
+        {/* {showDiscoverySelector && (
           <Selector
             items={[
               ...DISCOVERY.map((item) => {
@@ -303,7 +342,7 @@ export function SideBar(props: { className?: string }) {
               navigate(s[0], { state: { fromHome: true } });
             }}
           />
-        )}
+        )} */}
       </SideBarHeader>
       <SideBarBody
         onClick={(e) => {
@@ -327,7 +366,7 @@ export function SideBar(props: { className?: string }) {
                 }}
               />
             </div>
-            <div className={styles["sidebar-action"]}>
+            {/* <div className={styles["sidebar-action"]}>
               <Link to={Path.Settings}>
                 <IconButton
                   aria={Locale.Settings.Title}
@@ -344,7 +383,7 @@ export function SideBar(props: { className?: string }) {
                   shadow
                 />
               </a>
-            </div>
+            </div> */}
           </>
         }
         secondaryAction={

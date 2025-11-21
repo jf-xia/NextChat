@@ -1,10 +1,10 @@
 <div align="center">
 
-<a href='https://nextchat.club'>
+<a href='https://AIChat.club'>
   <img src="https://github.com/user-attachments/assets/83bdcc07-ae5e-4954-a53a-ac151ba6ccf3" width="1000" alt="icon"/>
 </a>
 
-<h1 align="center">NextChat</h1>
+<h1 align="center">AIChat</h1>
 
 영어 / [简体中文](./README_CN.md)
 
@@ -20,18 +20,18 @@
 [![MacOS][MacOS-image]][download-url]
 [![Linux][Linux-image]][download-url]
 
-[NextChatAI 웹사이트](https://nextchat.club?utm_source=readme) / [iOS 앱](https://apps.apple.com/us/app/nextchat-ai/id6743085599) / [웹 데모](https://app.nextchat.club) / [데스크톱 앱](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [엔터프라이즈 버전](#enterprise-edition)
+[AIChatAI 웹사이트](https://AIChat.club?utm_source=readme) / [iOS 앱](https://apps.apple.com/us/app/AIChat-ai/id6743085599) / [웹 데모](https://app.AIChat.club) / [데스크톱 앱](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [엔터프라이즈 버전](#enterprise-edition)
 
-[saas-url]: https://nextchat.club?utm_source=readme
-[saas-image]: https://img.shields.io/badge/NextChat-Saas-green?logo=microsoftedge
-[web-url]: https://app.nextchat.club/
+[saas-url]: https://AIChat.club?utm_source=readme
+[saas-image]: https://img.shields.io/badge/AIChat-Saas-green?logo=microsoftedge
+[web-url]: https://app.AIChat.club/
 [download-url]: https://github.com/Yidadaa/ChatGPT-Next-Web/releases
 [Web-image]: https://img.shields.io/badge/Web-PWA-orange?logo=microsoftedge
 [Windows-image]: https://img.shields.io/badge/-Windows-blue?logo=windows
 [MacOS-image]: https://img.shields.io/badge/-MacOS-black?logo=apple
 [Linux-image]: https://img.shields.io/badge/-Linux-333?logo=ubuntu
 
-[<img src="https://zeabur.com/button.svg" alt="Deploy on Zeabur" height="30">](https://zeabur.com/templates/ZBUEFA) [<img src="https://vercel.com/button" alt="Deploy on Vercel" height="30">](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FChatGPTNextWeb%2FChatGPT-Next-Web&env=OPENAI_API_KEY&env=CODE&project-name=nextchat&repository-name=NextChat) [<img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" height="30">](https://gitpod.io/#https://github.com/ChatGPTNextWeb/NextChat)
+[<img src="https://zeabur.com/button.svg" alt="Deploy on Zeabur" height="30">](https://zeabur.com/templates/ZBUEFA) [<img src="https://vercel.com/button" alt="Deploy on Vercel" height="30">](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FChatGPTNextWeb%2FChatGPT-Next-Web&env=OPENAI_API_KEY&env=CODE&project-name=AIChat&repository-name=AIChat) [<img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" height="30">](https://gitpod.io/#https://github.com/ChatGPTNextWeb/AIChat)
 
 [<img src="https://github.com/user-attachments/assets/903482d4-3e87-4134-9af1-f2588fa90659" height="50" width="" >](https://monica.im/?utm=nxcrp)
 
@@ -45,15 +45,15 @@
 
 [302.AI](https://302.ai/)는 사용한 만큼만 비용을 지불하는 AI 애플리케이션 플랫폼으로, 다양한 AI API 및 온라인 애플리케이션을 제공합니다.
 
-## 🥳 NextChat iOS 버전 출시!
+## 🥳 AIChat iOS 버전 출시!
 
-> 👉 [지금 설치하기](https://apps.apple.com/us/app/nextchat-ai/id6743085599)
+> 👉 [지금 설치하기](https://apps.apple.com/us/app/AIChat-ai/id6743085599)
 
-> ❤️ [소스 코드 곧 공개 예정](https://github.com/ChatGPTNextWeb/NextChat-iOS)
+> ❤️ [소스 코드 곧 공개 예정](https://github.com/ChatGPTNextWeb/AIChat-iOS)
 
 ![Github iOS Image](https://github.com/user-attachments/assets/e0aa334f-4c13-4dc9-8310-e3b09fa4b9f3)
 
-## 🫣 NextChat, MCP 지원!
+## 🫣 AIChat, MCP 지원!
 
 > 빌드 전 환경 변수(env) `ENABLE_MCP=true` 설정 필요
 
@@ -71,7 +71,7 @@
 - **프라이빗 배포 지원**: 주요 클라우드 서비스에 맞춘 배포 옵션
 - **지속적 업데이트**: 멀티모달 등 최신 AI 기능 지속 반영
 
-엔터프라이즈 문의: **business@nextchat.dev**
+엔터프라이즈 문의: **business@AIChat.dev**
 
 ## 🖼️ 스크린샷
 
@@ -116,7 +116,7 @@
 
 - 🚀 v2.15.8 실시간 채팅 지원 [#5672](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web/issues/5672)
 - 🚀 v2.15.4 Tauri 기반 LLM API 호출 기능 추가 → 보안 강화 [#5379](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web/issues/5379)
-- 🚀 v2.15.0 플러그인 기능 추가 → [NextChat-Awesome-Plugins](https://github.com/ChatGPTNextWeb/NextChat-Awesome-Plugins)
+- 🚀 v2.15.0 플러그인 기능 추가 → [AIChat-Awesome-Plugins](https://github.com/ChatGPTNextWeb/AIChat-Awesome-Plugins)
 - 🚀 v2.14.0 아티팩트 및 Stable Diffusion 기능 추가
 - 🚀 v2.10.1 Google Gemini Pro 모델 지원
 - 🚀 v2.9.11 Azure Endpoint 사용 가능
