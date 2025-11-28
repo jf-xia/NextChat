@@ -190,12 +190,13 @@ export class GeminiProApi implements LLMApi {
         Google.ChatPath(modelConfig.model),
         shouldStream,
       );
+      const headers = await getHeaders();
 
       const chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       const isThinking = options.config.model.includes("-thinking");
@@ -214,7 +215,7 @@ export class GeminiProApi implements LLMApi {
         return stream(
           chatPath,
           requestPayload,
-          getHeaders(),
+          headers,
           // @ts-ignore
           tools.length > 0
             ? // @ts-ignore

@@ -136,8 +136,9 @@ export class QwenApi implements LLMApi {
     options.onController?.(controller);
 
     try {
+      const baseHeaders = await getHeaders();
       const headers = {
-        ...getHeaders(),
+        ...baseHeaders,
         "X-DashScope-SSE": shouldStream ? "enable" : "disable",
       };
 

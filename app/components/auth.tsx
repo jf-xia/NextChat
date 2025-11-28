@@ -1,9 +1,10 @@
+"use client";
+
 import styles from "./auth.module.scss";
 import { IconButton } from "./button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Path, SAAS_CHAT_URL } from "../constant";
-import { useAccessStore } from "../store";
 import Locale from "../locales";
 import Delete from "../icons/close.svg";
 import Arrow from "../icons/arrow.svg";
@@ -11,7 +12,6 @@ import Logo from "../icons/logo.svg";
 import { useMobileScreen } from "@/app/utils";
 import BotIcon from "../icons/bot.svg";
 import { getClientConfig } from "../config/client";
-import { PasswordInput } from "./ui-lib";
 import LeftIcon from "@/app/icons/left.svg";
 import { safeLocalStorage } from "@/app/utils";
 import {
@@ -19,25 +19,46 @@ import {
   trackAuthorizationPageButtonToCPaymentClick,
 } from "../utils/auth-settings-events";
 import clsx from "clsx";
-
+import { useMsal } from "@azure/msal-react";
+import { InteractionStatus } from "@azure/msal-browser";
+import { loginRequest, msalConfig } from "../auth/authConfig";
+console.log(msalConfig);
 const storage = safeLocalStorage();
 
 export function AuthPage() {
   const navigate = useNavigate();
-  const accessStore = useAccessStore();
+  const { instance, accounts, inProgress } = useMsal();
   const goHome = () => navigate(Path.Home);
-  const goChat = () => navigate(Path.Chat);
   const goSaas = () => {
     trackAuthorizationPageButtonToCPaymentClick();
     window.location.href = SAAS_CHAT_URL;
   };
 
-  const resetAccessCode = () => {
-    accessStore.update((access) => {
-      access.openaiApiKey = "";
-      access.accessCode = "";
-    });
-  }; // Reset access code to empty string
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const isMsalBusy =
+    inProgress === InteractionStatus.Startup ||
+    inProgress === InteractionStatus.HandleRedirect;
+
+  const handleLogin = async () => {
+    setLoginError(null);
+    setIsLoggingIn(true);
+    try {
+      const response = await instance.loginPopup(loginRequest);
+      if (response?.account) {
+        instance.setActiveAccount(response.account);
+      }
+      navigate(Path.Home);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to login with Microsoft.";
+      setLoginError(message);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   useEffect(() => {
     if (getClientConfig()?.isApp) {
@@ -63,57 +84,14 @@ export function AuthPage() {
       <div className={styles["auth-title"]}>{Locale.Auth.Title}</div>
       <div className={styles["auth-tips"]}>{Locale.Auth.Tips}</div>
 
-      <PasswordInput
-        style={{ marginTop: "3vh", marginBottom: "3vh" }}
-        aria={Locale.Settings.ShowPassword}
-        aria-label={Locale.Auth.Input}
-        value={accessStore.accessCode}
-        type="text"
-        placeholder={Locale.Auth.Input}
-        onChange={(e) => {
-          accessStore.update(
-            (access) => (access.accessCode = e.currentTarget.value),
-          );
-        }}
-      />
-
-      {!accessStore.hideUserApiKey ? (
-        <>
-          <div className={styles["auth-tips"]}>{Locale.Auth.SubTips}</div>
-          <PasswordInput
-            style={{ marginTop: "3vh", marginBottom: "3vh" }}
-            aria={Locale.Settings.ShowPassword}
-            aria-label={Locale.Settings.Access.OpenAI.ApiKey.Placeholder}
-            value={accessStore.openaiApiKey}
-            type="text"
-            placeholder={Locale.Settings.Access.OpenAI.ApiKey.Placeholder}
-            onChange={(e) => {
-              accessStore.update(
-                (access) => (access.openaiApiKey = e.currentTarget.value),
-              );
-            }}
-          />
-          <PasswordInput
-            style={{ marginTop: "3vh", marginBottom: "3vh" }}
-            aria={Locale.Settings.ShowPassword}
-            aria-label={Locale.Settings.Access.Google.ApiKey.Placeholder}
-            value={accessStore.googleApiKey}
-            type="text"
-            placeholder={Locale.Settings.Access.Google.ApiKey.Placeholder}
-            onChange={(e) => {
-              accessStore.update(
-                (access) => (access.googleApiKey = e.currentTarget.value),
-              );
-            }}
-          />
-        </>
-      ) : null}
+      {loginError && <div className={styles["auth-error"]}>{loginError}</div>}
 
       <div className={styles["auth-actions"]}>
         <IconButton
           text={Locale.Auth.Confirm}
           type="primary"
-          onClick={goChat}
+          onClick={handleLogin}
+          disabled={isLoggingIn || isMsalBusy}
         />
         <IconButton
           text={Locale.Auth.SaasTips}

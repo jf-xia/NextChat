@@ -94,6 +94,7 @@ export class MoonshotApi implements LLMApi {
 
     console.log("[Request] openai payload: ", requestPayload);
 
+    const headers = await getHeaders();
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
@@ -104,7 +105,7 @@ export class MoonshotApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // make a fetch request
@@ -122,7 +123,7 @@ export class MoonshotApi implements LLMApi {
         return stream(
           chatPath,
           requestPayload,
-          getHeaders(),
+          headers,
           tools as any,
           funcs,
           controller,

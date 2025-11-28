@@ -94,6 +94,7 @@ export class SparkApi implements LLMApi {
 
     console.log("[Request] Spark payload: ", requestPayload);
 
+    const headers = await getHeaders();
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
@@ -104,7 +105,7 @@ export class SparkApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // Make a fetch request

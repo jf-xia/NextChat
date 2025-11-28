@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useMsal } from "@azure/msal-react";
 
 import styles from "./home.module.scss";
 
@@ -14,6 +15,7 @@ import DragIcon from "../icons/drag.svg";
 import DiscoveryIcon from "../icons/discovery.svg";
 
 import Locale from "../locales";
+import { getUsername } from "../auth/authConfig";
 
 import { useAppConfig, useChatStore } from "../store";
 
@@ -236,6 +238,18 @@ export function SideBar(props: { className?: string }) {
   const [mcpEnabled, setMcpEnabled] = useState(false);
   const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "AI Chat";
   const logoUrl = process.env.NEXT_PUBLIC_APP_LOGO_URL ?? "";
+  const { instance, accounts } = useMsal();
+  const resolvedUsername = useMemo(() => {
+    const primaryAccount = accounts[0];
+    if (primaryAccount) {
+      const preferred = primaryAccount.name || primaryAccount.username;
+      if (preferred) {
+        return preferred.trim();
+      }
+    }
+    return getUsername(instance) ?? "";
+  }, [accounts, instance]);
+  const welcomeUsername = resolvedUsername || "";
 
   useEffect(() => {
     // 检查 MCP 是否启用
@@ -259,6 +273,9 @@ export function SideBar(props: { className?: string }) {
           <>
             <div style={{ color: "var(--text-secondary)" }}>
               <small>
+                <b style={{ position: "relative", float: "right" }}>
+                  {welcomeUsername}
+                </b>
                 <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
                 <br />
                 <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
@@ -284,7 +301,7 @@ export function SideBar(props: { className?: string }) {
                 objectFit: "none",
                 position: "absolute",
                 objectPosition: "left",
-                top: "0px",
+                top: "-15px",
                 right: "0px",
               }}
             />

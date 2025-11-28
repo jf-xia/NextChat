@@ -115,6 +115,7 @@ export class DoubaoApi implements LLMApi {
 
     const controller = new AbortController();
     options.onController?.(controller);
+    const headers = await getHeaders();
 
     try {
       const chatPath = this.path(ByteDance.ChatPath);
@@ -122,7 +123,7 @@ export class DoubaoApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // make a fetch request
@@ -140,7 +141,7 @@ export class DoubaoApi implements LLMApi {
         return streamWithThink(
           chatPath,
           requestPayload,
-          getHeaders(),
+          headers,
           tools as any,
           funcs,
           controller,

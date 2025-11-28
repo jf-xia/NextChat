@@ -126,6 +126,7 @@ export class HunyuanApi implements LLMApi {
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
+    const headers = await getHeaders();
 
     try {
       const chatPath = this.path();
@@ -133,7 +134,7 @@ export class HunyuanApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // make a fetch request

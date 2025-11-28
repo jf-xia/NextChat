@@ -18,6 +18,7 @@ import { getISOLang, getLang } from "../locales";
 
 import {
   HashRouter as Router,
+  Navigate,
   Route,
   Routes,
   useLocation,
@@ -30,6 +31,8 @@ import { type ClientApi, getClientApi } from "../client/api";
 import { useAccessStore } from "../store";
 import clsx from "clsx";
 import { initializeMcpSystem, isMcpEnabled } from "../mcp/actions";
+import { useMsal } from "@azure/msal-react";
+import { InteractionStatus } from "@azure/msal-browser";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -182,7 +185,9 @@ function Screen() {
     );
   }
   const renderContent = () => {
-    if (isAuth) return <AuthPage />;
+    if (isAuth) {
+      return <Navigate to={Path.Home} replace />;
+    }
     if (isSd) return <Sd />;
     if (isSdNew) return <Sd />;
     return (
@@ -220,23 +225,34 @@ function Screen() {
   );
 }
 
-export function useLoadData() {
+export function useLoadData(shouldLoad: boolean) {
   const config = useAppConfig();
 
-  const api: ClientApi = getClientApi(config.modelConfig.providerName);
-
   useEffect(() => {
-    (async () => {
+    if (!shouldLoad) {
+      return;
+    }
+
+    const load = async () => {
+      const api: ClientApi = getClientApi(config.modelConfig.providerName);
       const models = await api.llm.models();
       config.mergeModels(models);
-    })();
+    };
+
+    load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shouldLoad]);
 }
 
 export function Home() {
   useSwitchTheme();
-  useLoadData();
+  const { accounts, inProgress } = useMsal();
+  const isAuthenticated = accounts.length > 0;
+  const hasHydrated = useHasHydrated();
+  const isMsalInitializing =
+    inProgress === InteractionStatus.Startup ||
+    inProgress === InteractionStatus.HandleRedirect;
+  useLoadData(isAuthenticated);
   useHtmlLang();
 
   useEffect(() => {
@@ -258,15 +274,13 @@ export function Home() {
     initMcp();
   }, []);
 
-  if (!useHasHydrated()) {
+  if (!hasHydrated || isMsalInitializing) {
     return <Loading />;
   }
 
   return (
     <ErrorBoundary>
-      <Router>
-        <Screen />
-      </Router>
+      <Router>{isAuthenticated ? <Screen /> : <AuthPage />}</Router>
     </ErrorBoundary>
   );
 }

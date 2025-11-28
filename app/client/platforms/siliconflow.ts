@@ -119,6 +119,7 @@ export class SiliconflowApi implements LLMApi {
 
     console.log("[Request] openai payload: ", requestPayload);
 
+    const headers = await getHeaders();
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
@@ -129,7 +130,7 @@ export class SiliconflowApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // console.log(chatPayload);
@@ -149,7 +150,7 @@ export class SiliconflowApi implements LLMApi {
         return streamWithThink(
           chatPath,
           requestPayload,
-          getHeaders(),
+          headers,
           tools as any,
           funcs,
           controller,
@@ -256,11 +257,10 @@ export class SiliconflowApi implements LLMApi {
       return DEFAULT_MODELS.slice();
     }
 
+    const headers = await getHeaders();
     const res = await fetch(this.path(SiliconFlow.ListModelPath), {
       method: "GET",
-      headers: {
-        ...getHeaders(),
-      },
+      headers,
     });
 
     const resJson = (await res.json()) as SiliconFlowListModelResponse;

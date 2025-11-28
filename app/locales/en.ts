@@ -14,17 +14,17 @@ const en: LocaleType = {
      \\ 2️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️`
       : `😆 Oops, there's an issue. Let's fix it:
      \ 1️⃣ New here? [Click to start chatting now 🚀](${SAAS_CHAT_UTM_URL})
-     \ 2️⃣ Using a private setup? [Click here](/#/auth) to enter your key 🔑
+     \ 2️⃣ Using a private setup? Sign in with your Microsoft account from the home page to continue 🔑
      \ 3️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️
      `,
   },
   Auth: {
     Return: "Return",
-    Title: "Need Access Code",
-    Tips: "Please enter access code below",
-    SubTips: "Or enter your OpenAI or Google API Key",
-    Input: "access code",
-    Confirm: "Confirm",
+    Title: "Sign in to continue",
+    Tips: "Use your Microsoft account to unlock AIChat.",
+    SubTips: "You'll be redirected after a successful sign-in.",
+    Input: "Microsoft login",
+    Confirm: "Login with Microsoft",
     Later: "Later",
     SaasTips: "Too Complex, Use Immediately Now",
     TopTips:

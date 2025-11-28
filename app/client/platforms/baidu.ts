@@ -121,6 +121,7 @@ export class ErnieApi implements LLMApi {
 
     const controller = new AbortController();
     options.onController?.(controller);
+    const headers = await getHeaders();
 
     try {
       let chatPath = this.path(Baidu.ChatPath(modelConfig.model));
@@ -144,7 +145,7 @@ export class ErnieApi implements LLMApi {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
-        headers: getHeaders(),
+        headers,
       };
 
       // make a fetch request

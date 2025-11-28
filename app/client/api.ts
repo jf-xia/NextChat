@@ -1,3 +1,5 @@
+"use client";
+
 import { getClientConfig } from "../config/client";
 import {
   ACCESS_CODE_PREFIX,
@@ -25,6 +27,7 @@ import { XAIApi } from "./platforms/xai";
 import { ChatGLMApi } from "./platforms/glm";
 import { SiliconflowApi } from "./platforms/siliconflow";
 import { Ai302Api } from "./platforms/ai302";
+import { getToken, msalInstance } from "../auth/authConfig";
 
 export const ROLES = ["system", "user", "assistant"] as const;
 export type MessageRole = (typeof ROLES)[number];
@@ -241,7 +244,17 @@ export function validString(x: string): boolean {
   return x?.length > 0;
 }
 
-export function getHeaders(ignoreHeaders: boolean = false) {
+async function getAzureAccessToken(): Promise<string | undefined> {
+  if (typeof window === "undefined") return undefined;
+  try {
+    return await getToken(msalInstance);
+  } catch (error) {
+    console.warn("Failed to acquire Azure AD token", error);
+    return undefined;
+  }
+}
+
+export async function getHeaders(ignoreHeaders: boolean = false) {
   const accessStore = useAccessStore.getState();
   const chatStore = useChatStore.getState();
   let headers: Record<string, string> = {};
@@ -356,10 +369,15 @@ export function getHeaders(ignoreHeaders: boolean = false) {
 
   if (bearerToken) {
     headers[authHeader] = bearerToken;
-  } else if (isEnabledAccessControl && validString(accessStore.accessCode)) {
-    headers["Authorization"] = getBearerToken(
-      ACCESS_CODE_PREFIX + accessStore.accessCode,
-    );
+  } else if (isEnabledAccessControl) {
+    const aadToken = await getAzureAccessToken();
+    if (aadToken) {
+      headers["Authorization"] = getBearerToken(aadToken);
+    } else if (validString(accessStore.accessCode)) {
+      headers["Authorization"] = getBearerToken(
+        ACCESS_CODE_PREFIX + accessStore.accessCode,
+      );
+    }
   }
 
   return headers;
