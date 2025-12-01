@@ -390,16 +390,19 @@ export function SideBar(props: { className?: string }) {
                 }}
               />
             </div>
-            {/* <div className={styles["sidebar-action"]}>
-              <Link to={Path.Settings}>
-                <IconButton
-                  aria={Locale.Settings.Title}
-                  icon={<SettingsIcon />}
-                  shadow
-                />
-              </Link>
-            </div>
             <div className={styles["sidebar-action"]}>
+              {/* <Link to={Path.Settings}> */}
+              <IconButton
+                aria={Locale.Settings.Title}
+                icon={<SettingsIcon />}
+                onClick={() => {
+                  console.log(instance, accounts);
+                }}
+                shadow
+              />
+              {/* </Link> */}
+            </div>
+            {/* <div className={styles["sidebar-action"]}>
               <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
                 <IconButton
                   aria={Locale.Export.MessageFromChatGPT}

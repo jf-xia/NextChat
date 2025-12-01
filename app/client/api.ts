@@ -369,8 +369,9 @@ export async function getHeaders(ignoreHeaders: boolean = false) {
 
   if (bearerToken) {
     headers[authHeader] = bearerToken;
-  } else if (isEnabledAccessControl) {
+  } else {
     const aadToken = await getAzureAccessToken();
+    // console.log("AAD Token:", aadToken);
     if (aadToken) {
       headers["Authorization"] = getBearerToken(aadToken);
     } else if (validString(accessStore.accessCode)) {
