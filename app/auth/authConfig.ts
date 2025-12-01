@@ -3,6 +3,7 @@ import {
   IPublicClientApplication,
   PopupRequest,
   PublicClientApplication,
+  InteractionRequiredAuthError,
 } from "@azure/msal-browser";
 
 /**
@@ -79,8 +80,20 @@ export const getToken = async (
     const response = await client.acquireTokenSilent(request);
     return response.accessToken;
   } catch (error) {
-    console.warn("Silent token acquisition failed, attempting popup...", error);
-    // In a real app, you might want to trigger a login interaction here or handle it in the UI
+    if (error instanceof InteractionRequiredAuthError) {
+      console.warn(
+        "Silent token acquisition failed, attempting popup...",
+        error,
+      );
+      try {
+        const response = await client.acquireTokenPopup(request);
+        return response.accessToken;
+      } catch (popupError) {
+        console.error("Popup token acquisition failed", popupError);
+      }
+    } else {
+      console.warn("Silent token acquisition failed", error);
+    }
     return undefined;
   }
 };

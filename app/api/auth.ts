@@ -110,35 +110,50 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
     };
   }
 
-  // get User.Read on behalf of user token using @azure/msal-node, using configs from .env:
-  // NEXT_PUBLIC_AZURE_AD_TENANT_ID
-  // NEXT_PUBLIC_AZURE_AD_CLIENT_APP_ID
-  // AZURE_AD_CLIENT_APP_SECRET
-  // NEXT_PUBLIC_AZURE_AD_SERVER_APP_ID
-  // AZURE_AD_SERVER_APP_SECRET
-  // NEXT_PUBLIC_AZURE_AD_REDIRECT_URI
+  if (
+    !process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID ||
+    !process.env.NEXT_PUBLIC_AZURE_AD_SERVER_APP_ID ||
+    !process.env.AZURE_AD_SERVER_APP_SECRET
+  ) {
+    return {
+      error: true,
+      msg: "missing backend AD configuration",
+    };
+  }
 
   let userEmail = "";
-  if (process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID) {
-    try {
-      const token = authToken.trim().replace("Bearer ", "").trim();
-      await validateAccessToken(token);
-      const claims = (await getAuthClaims(token)) as any;
-      userEmail = (claims?.preferred_username ||
-        claims?.upn ||
-        claims?.email) as string;
-      console.log("[Auth] Authenticated user:", userEmail);
-    } catch (e) {
-      console.error("[Auth] Azure AD validation failed", e);
+
+  try {
+    const token = authToken.trim().replace("Bearer ", "").trim();
+    await validateAccessToken(token);
+    const claims = (await getAuthClaims(token)) as any;
+    userEmail = (claims?.preferred_username ||
+      claims?.upn ||
+      claims?.email) as string;
+    console.log("[Auth] Authenticated user:", userEmail);
+  } catch (e: any) {
+    console.error("[Auth] Azure AD validation failed", e);
+    if (e.name === "TokenExpiredError") {
       return {
         error: true,
-        msg: "Invalid Azure AD token",
+        msg: "Token expired",
       };
     }
+    return {
+      error: true,
+      msg: "Invalid Azure AD token",
+    };
+  }
+
+  if (!userEmail) {
+    return {
+      error: true,
+      msg: "Unable to retrieve user information from token",
+    };
   }
 
   const serverConfig = getServerSideConfig();
-  const systemApiKey = ""; //serverConfig.apiKey;
+  const systemApiKey = serverConfig.apiKey;
 
   if (systemApiKey) {
     console.log("[Auth] use system api key");
