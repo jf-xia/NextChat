@@ -29,6 +29,12 @@ const nextConfig = {
   output: mode,
   images: {
     unoptimized: mode === "export",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.hsu.edu.hk",
+      },
+    ],
   },
   experimental: {
     forceSwcTransforms: true,

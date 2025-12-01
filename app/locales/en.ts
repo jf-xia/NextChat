@@ -21,14 +21,13 @@ const en: LocaleType = {
   Auth: {
     Return: "Return",
     Title: "Sign in to continue",
-    Tips: "Use your Microsoft account to unlock AIChat.",
+    Tips: "Use your account to unlock AIChat.",
     SubTips: "You'll be redirected after a successful sign-in.",
-    Input: "Microsoft login",
-    Confirm: "Login with Microsoft",
+    Input: "Login",
+    Confirm: "Login",
     Later: "Later",
     SaasTips: "Too Complex, Use Immediately Now",
-    TopTips:
-      "🥳 AIChat AI launch promotion: Instantly unlock the latest models like OpenAI o1, GPT-4o, Claude-3.5!",
+    TopTips: "🥳 AIChat AI",
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} messages`,
