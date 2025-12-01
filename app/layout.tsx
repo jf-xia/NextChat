@@ -52,7 +52,7 @@ export default function RootLayout({
       </head>
       <body>
         <MsalRootProvider>{children}</MsalRootProvider>
-        {serverConfig?.isVercel && (
+        {/* {serverConfig?.isVercel && (
           <>
             <SpeedInsights />
           </>
@@ -66,7 +66,7 @@ export default function RootLayout({
           <>
             <GoogleAnalytics gaId={serverConfig.gaId} />
           </>
-        )}
+        )} */}
       </body>
     </html>
   );

@@ -273,9 +273,16 @@ export function SideBar(props: { className?: string }) {
           <>
             <div style={{ color: "var(--text-secondary)" }}>
               <small>
-                <b style={{ position: "relative", float: "right" }}>
+                <b
+                  style={{
+                    position: "relative",
+                    float: "right",
+                    padding: "5px",
+                  }}
+                >
                   {welcomeUsername}
                 </b>
+                <br />
                 <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
                 <br />
                 <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>

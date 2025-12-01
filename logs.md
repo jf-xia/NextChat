@@ -89,12 +89,3 @@ AZURE_AD_SERVER_APP_ID=<server-app-id>
         *   若未登录，渲染 `AuthPage` 或重定向。
     *   **移除访客模式**: 删除相关 UI 开关和逻辑判断。
 
-4.  **后端验证改造**
-    *   **更新 `app/api/chat/route.ts`**:
-        *   移除 `CODE` 环境变量校验。
-        *   引入 JWT 验证库 (如 `jose`)。
-        *   实现 `auth(req)` 函数：解析 `Authorization` 头，验证 Azure AD 签名和过期时间。
-        *   解析 Token 获取用户信息 (OID, Name) 用于审计或上下文。
-
-
-
