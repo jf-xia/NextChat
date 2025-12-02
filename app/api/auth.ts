@@ -5,13 +5,19 @@ import { ACCESS_CODE_PREFIX, ModelProvider } from "../constant";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
+import * as crypto from "crypto";
+import { max } from "lodash-es";
 
 // Configuration (read env once at module load time to avoid repeated process.env calls)
 const AZURE_TENANT_ID = process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID ?? "";
 const AZURE_SERVER_APP_ID =
   process.env.NEXT_PUBLIC_AZURE_AD_SERVER_APP_ID ?? "";
 const AZURE_SERVER_APP_SECRET = process.env.AZURE_AD_SERVER_APP_SECRET ?? "";
+const LITELLM_BASE_URL = process.env.BASE_URL ?? "";
+const LITELLM_API_KEY = process.env.OPENAI_API_KEY ?? "";
+const salt = process.env.AZURE_AUTH_KEY_GEN_SALT ?? "wxioaq";
 // const AZURE_AUTH_ON_BEHALF_OF_ENABLED = process.env.AZURE_AUTH_ON_BEHALF_OF_ENABLED ?? false;
+const year = new Date().getFullYear();
 
 function getIP(req: NextRequest) {
   let ip = req.ip ?? req.headers.get("x-real-ip");
@@ -188,7 +194,12 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
     // extract username and fall back to OBO/Graph when necessary
     const usernameFromToken = await getUsernameByToken(token);
     username = usernameFromToken || "";
-    console.log("[Auth] Authenticated user:", username);
+    const userKey = getKeyByUsername(username);
+    let llmKey = await getLLMKey(userKey);
+    if (!llmKey) {
+      llmKey = await generateKey(userKey, username);
+    }
+    req.headers.set("Authorization", `Bearer ${llmKey}`);
   } catch (e: any) {
     console.error("[Auth] Azure AD validation failed", e);
     if (e.name === "TokenExpiredError") {
@@ -210,16 +221,92 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
     };
   }
 
-  const serverConfig = getServerSideConfig();
-  const systemApiKey = ""; // serverConfig.apiKey;
-
-  if (systemApiKey) {
-    console.log("[Auth] use system api key");
-    req.headers.set("Authorization", `Bearer ${systemApiKey}`);
-  } else {
-    console.log("[Auth] admin did not provide an api key");
-  }
   return {
     error: false,
   };
+}
+
+export function getKeyByUsername(username: string): string {
+  // Use MD5 hash of username+year+salt as the key
+  const hash =
+    "sk-" +
+    crypto
+      .createHash("md5")
+      .update(username + year + salt)
+      .digest("hex");
+  return hash;
+}
+
+export async function getLLMKey(key: any): Promise<string | null> {
+  const getKeyUrl = `${LITELLM_BASE_URL}/key/info?key=${key}`;
+  try {
+    const res = await fetch(getKeyUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LITELLM_API_KEY}`,
+      },
+      method: "GET",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      // console.log(`[getLLMKey] Retrieved data for ${JSON.stringify(data)}`);
+      return data.key;
+    } else {
+      const err = await res.json();
+      console.error(
+        `[getLLMKey] Failed to get key for ${key}, err: ${JSON.stringify(err)}`,
+      );
+      return null;
+    }
+  } catch (e) {
+    console.error(`[getLLMKey] Error fetching key for ${key}`, e);
+    return null;
+  }
+}
+
+export async function generateKey(
+  key: string,
+  username: string,
+): Promise<string | null> {
+  const generateKeyUrl = `${LITELLM_BASE_URL}/key/generate`;
+  const body = {
+    key: key,
+    team_id: "team-users",
+    metadata: { year, username },
+    max_budget: 1.0,
+    budget_duration: "1mo",
+    max_parallel_requests: 2,
+    rpm_limit: 10,
+    // tpm_limit: 20000,
+    // models: [],
+    // key_alias: username+year,
+    // key_type: "read_only", //llm_api, management, read_only, default
+    // duration: "30d", // TODO: Set Key validity duration
+  };
+
+  try {
+    const res = await fetch(generateKeyUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LITELLM_API_KEY}`,
+      },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      // console.log(`[generateKey] Generated key for ${JSON.stringify(data)}`);
+      return data.key;
+    } else {
+      console.error(
+        `[generateKey] Failed to generate key for ${key}, err: ${JSON.stringify(
+          await res.json(),
+        )}`,
+      );
+      return null;
+    }
+  } catch (e) {
+    console.error(`[generateKey] Error generating key for ${key}`, e);
+    return null;
+  }
 }

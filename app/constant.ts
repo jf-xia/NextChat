@@ -934,5 +934,6 @@ export const internalAllowedWebDavEndpoints = [
 
 export const DEFAULT_GA_ID = "";
 
-export const SAAS_CHAT_URL = "https://club";
-export const SAAS_CHAT_UTM_URL = "https://club";
+// 使用email: 	itsc@hsu.edu.hk as default utm source
+export const SAAS_CHAT_URL = process.env.NEXT_PUBLIC_SUPPORT_URL;
+export const SAAS_CHAT_UTM_URL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;

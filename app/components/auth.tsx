@@ -9,7 +9,6 @@ import { getClientConfig } from "../config/client";
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest, msalConfig } from "../auth/authConfig";
-console.log(msalConfig);
 
 export function AuthPage() {
   const navigate = useNavigate();
