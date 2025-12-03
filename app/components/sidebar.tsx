@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useMsal } from "@azure/msal-react";
 
 import styles from "./home.module.scss";
@@ -187,10 +188,10 @@ export function SideBarHeader(props: {
       })}
       data-tauri-drag-region
     >
+      {logo}
       <div className={styles["sidebar-title-container"]}>
         <div className={styles["sidebar-title"]} data-tauri-drag-region>
           {title}
-          <div className={clsx(styles["sidebar-logo"], "no-dark")}>{logo}</div>
         </div>
         <div className={styles["sidebar-sub-title"]}>{subTitle}</div>
       </div>
@@ -348,7 +349,7 @@ export function SideBar(props: { className?: string }) {
                 <br />
                 <div style={{ paddingTop: "10px" }}>
                   <b style={{ paddingLeft: "5px" }}>
-                    Welcome, {welcomeUsername} ! Let's start with safety:</b>
+                    Welcome, {welcomeUsername} ! Let&apos;s start with safety:</b>
                   <br />
                   <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
                     <li>Never input private or sensitive data.</li>
@@ -363,18 +364,12 @@ export function SideBar(props: { className?: string }) {
         }
         logo={
           logoUrl ? (
-            <img
+            <Image
               src={logoUrl}
               alt={appName}
-              style={{
-                width: 70,
-                height: 70,
-                objectFit: "none",
-                position: "absolute",
-                objectPosition: "left",
-                top: "-15px",
-                right: "0px",
-              }}
+              width={96 * 3}
+              height={33 * 3}
+              className={styles["sidebar-logo-image"]}
             />
           ) : (
             <ChatGptIcon />

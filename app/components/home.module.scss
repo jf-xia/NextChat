@@ -149,6 +149,16 @@
   display: inline-flex;
 }
 
+.sidebar-logo-image {
+  display: inline-flex;
+  position: absolute;
+  object-fit: none;
+  object-position: left;
+  width: 60px;
+  top: -15px;
+  right: 0;
+}
+
 .sidebar-title-container {
   display: inline-flex;
   flex-direction: column;
