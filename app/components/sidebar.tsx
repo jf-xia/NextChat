@@ -6,6 +6,7 @@ import styles from "./home.module.scss";
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
+import PowerIcon from "../icons/power.svg";
 import ChatGptIcon from "../icons/chatgpt.svg";
 import AddIcon from "../icons/add.svg";
 import DeleteIcon from "../icons/delete.svg";
@@ -17,7 +18,7 @@ import DiscoveryIcon from "../icons/discovery.svg";
 import Locale from "../locales";
 import { getUsername } from "../auth/authConfig";
 
-import { useAppConfig, useChatStore } from "../store";
+import { useAppConfig, useChatStore, useUpdateStore } from "../store";
 
 import {
   DEFAULT_SIDEBAR_WIDTH,
@@ -180,25 +181,21 @@ export function SideBarHeader(props: {
 }) {
   const { title, subTitle, logo, children, shouldNarrow } = props;
   return (
-    <Fragment>
-      <div
-        className={clsx(styles["sidebar-header"], {
-          [styles["sidebar-header-narrow"]]: shouldNarrow,
-        })}
-        data-tauri-drag-region
-      >
-        <div className={styles["sidebar-title-container"]}>
-          <div className={styles["sidebar-title"]} data-tauri-drag-region>
-            {title}
-            <div className={clsx(styles["sidebar-logo"], "no-dark")}>
-              {logo}
-            </div>
-          </div>
-          <div className={styles["sidebar-sub-title"]}>{subTitle}</div>
+    <div
+      className={clsx(styles["sidebar-header"], {
+        [styles["sidebar-header-narrow"]]: shouldNarrow,
+      })}
+      data-tauri-drag-region
+    >
+      <div className={styles["sidebar-title-container"]}>
+        <div className={styles["sidebar-title"]} data-tauri-drag-region>
+          {title}
+          <div className={clsx(styles["sidebar-logo"], "no-dark")}>{logo}</div>
         </div>
+        <div className={styles["sidebar-sub-title"]}>{subTitle}</div>
       </div>
       {children}
-    </Fragment>
+    </div>
   );
 }
 
@@ -235,6 +232,18 @@ export function SideBar(props: { className?: string }) {
   const navigate = useNavigate();
   const config = useAppConfig();
   const chatStore = useChatStore();
+  const updateStore = useUpdateStore();
+  const usedAmount = Math.round(updateStore.used * 1000);
+  const subscriptionAmount = Math.round(updateStore.subscription * 1000);
+  const hasUsage = usedAmount > 0 || subscriptionAmount > 0;
+  const percentUsed =
+    updateStore.subscription && updateStore.subscription > 0
+      ? Math.min(
+          100,
+          Math.round((updateStore.used / updateStore.subscription) * 100 || 0),
+        )
+      : 0;
+
   const [mcpEnabled, setMcpEnabled] = useState(false);
   const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "AI Chat";
   const logoUrl = process.env.NEXT_PUBLIC_APP_LOGO_URL ?? "";
@@ -273,26 +282,85 @@ export function SideBar(props: { className?: string }) {
           <>
             <div style={{ color: "var(--text-secondary)" }}>
               <small>
+                <div
+                  className={styles["quota-usage"]}
+                  title={Locale.Settings.Usage.SubTitle(
+                    usedAmount,
+                    subscriptionAmount,
+                  )}
+                  onClick={() => {
+                    // If user clicks the quota area, go to settings page where balance could be checked
+                    navigate(Path.Settings);
+                  }}
+                  role="button"
+                  aria-label={Locale.Settings.Usage.Title}
+                >
+                  {!shouldNarrow ? (
+                    <>
+                      <div className={styles["quota-usage-text"]}>
+                        <small>{Locale.Settings.Usage.Title}</small>
+                        <div className={styles["quota-usage-values"]}>
+                          <b>{hasUsage ? usedAmount.toLocaleString() : "—"}</b>
+                          <span className={styles["quota-usage-sep"]}>/</span>
+                          <small>
+                            {hasUsage
+                              ? subscriptionAmount.toLocaleString()
+                              : "—"}
+                          </small>
+                        </div>
+                      </div>
+                      <div className={styles["quota-usage-bar"]}>
+                        <div
+                          className={styles["quota-usage-fill"]}
+                          style={{
+                            width: `${percentUsed}%`,
+                            backgroundColor:
+                              updateStore.subscription > 0 &&
+                              updateStore.used / updateStore.subscription >= 1
+                                ? "#e74c3c" /* danger */
+                                : updateStore.subscription > 0 &&
+                                  updateStore.used / updateStore.subscription >=
+                                    0.8
+                                ? "#f39c12" /* warning */
+                                : "var(--primary)",
+                          }}
+                        />
+                        <div className={styles["quota-usage-percent"]}>
+                          {updateStore.subscription > 0
+                            ? `${percentUsed}%`
+                            : "—"}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className={styles["quota-usage-values"]}>
+                      <b>
+                        {updateStore.subscription > 0 ? `${percentUsed}%` : "—"}
+                      </b>
+                    </div>
+                  )}
+                </div>
                 <b
                   style={{
                     position: "relative",
                     float: "right",
-                    padding: "5px",
+                    padding: "20px 5px 0px 5px",
                   }}
                 >
                   {welcomeUsername}
                 </b>
                 <br />
-                <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
                 <br />
-                <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
-                  <li>Never input private or sensitive data.</li>
-                  <li>Never use AI for unlawful or harmful acts.</li>
-                  <li>
-                    Remember that its knowledge may be outdated or biased.
-                  </li>
-                  <li>Always verify its answers with reliable sources.</li>
-                </ul>
+                <div style={{ paddingTop: "10px" }}>
+                  <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
+                  <br />
+                  <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
+                    <li>Never input private or sensitive data.</li>
+                    <li>Never use AI for unlawful or harmful acts.</li>
+                    <li>Remember that its knowledge may be biased.</li>
+                    <li>Always verify its answers with reliable sources.</li>
+                  </ul>
+                </div>
               </small>
             </div>
           </>
@@ -377,6 +445,7 @@ export function SideBar(props: { className?: string }) {
       >
         <ChatList narrow={shouldNarrow} />
       </SideBarBody>
+
       <SideBarTail
         primaryAction={
           <>
@@ -390,27 +459,16 @@ export function SideBar(props: { className?: string }) {
                 }}
               />
             </div>
+            <div className={styles["sidebar-action"]}></div>
             <div className={styles["sidebar-action"]}>
-              {/* <Link to={Path.Settings}> */}
               <IconButton
-                aria={Locale.Settings.Title}
-                icon={<SettingsIcon />}
-                onClick={() => {
-                  console.log(instance, accounts);
-                }}
+                aria={"Logout"}
+                icon={<PowerIcon />}
+                // text={shouldNarrow ? undefined : "Logout"}
+                onClick={() => instance.logoutRedirect()}
                 shadow
               />
-              {/* </Link> */}
             </div>
-            {/* <div className={styles["sidebar-action"]}>
-              <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-                <IconButton
-                  aria={Locale.Export.MessageFromChatGPT}
-                  icon={<GithubIcon />}
-                  shadow
-                />
-              </a>
-            </div> */}
           </>
         }
         secondaryAction={

@@ -135,7 +135,7 @@
 
 .sidebar-header {
   position: relative;
-  padding-top: 20px;
+  // padding-top: 20px;
   padding-bottom: 20px;
   display: flex;
   justify-content: space-between;
@@ -333,6 +333,62 @@
 
 .sidebar-action:not(:last-child) {
   margin-right: 15px;
+}
+
+.quota-usage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 140px;
+  cursor: pointer;   
+  width: 150px;
+  position: relative;
+  float: left;
+}
+
+.quota-usage-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.quota-usage-values {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.quota-usage-sep {
+  opacity: 0.6;
+}
+
+.quota-usage-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.quota-usage-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width 0.3s ease, background-color 0.2s ease;
+}
+
+.quota-usage-percent {
+  position: absolute;
+  right: 6px;
+  top: -18px;
+  font-size: 11px;
+  color: var(--text-secondary);
 }
 
 .loading-content {

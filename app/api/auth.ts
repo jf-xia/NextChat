@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSideConfig } from "../config/server";
 import md5 from "spark-md5";
 import { ACCESS_CODE_PREFIX, ModelProvider } from "../constant";
@@ -195,11 +195,16 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
     const usernameFromToken = await getUsernameByToken(token);
     username = usernameFromToken || "";
     const userKey = getKeyByUsername(username);
-    let llmKey = await getLLMKey(userKey);
+    let llmData = await getLLMKey(userKey);
+    let llmKey = llmData?.key as string | null;
     if (!llmKey) {
-      llmKey = await generateKey(userKey, username);
+      llmData = await generateKey(userKey, username);
+      llmKey = llmData?.key as string | null;
     }
+    // console.log(`[Auth] User: ${username}, LLM Key: ${llmKey}, Spend: ${llmData.spend}, data: ${JSON.stringify(llmData)}`);
     req.headers.set("Authorization", `Bearer ${llmKey}`);
+    req.headers.set("spend", llmData.spend);
+    req.headers.set("budget", llmData.max_budget);
   } catch (e: any) {
     console.error("[Auth] Azure AD validation failed", e);
     if (e.name === "TokenExpiredError") {
@@ -237,7 +242,7 @@ export function getKeyByUsername(username: string): string {
   return hash;
 }
 
-export async function getLLMKey(key: any): Promise<string | null> {
+export async function getLLMKey(key: any): Promise<any> {
   const getKeyUrl = `${LITELLM_BASE_URL}/key/info?key=${key}`;
   try {
     const res = await fetch(getKeyUrl, {
@@ -250,7 +255,7 @@ export async function getLLMKey(key: any): Promise<string | null> {
     if (res.ok) {
       const data = await res.json();
       // console.log(`[getLLMKey] Retrieved data for ${JSON.stringify(data)}`);
-      return data.key;
+      return { key: data.key, ...data.info };
     } else {
       const err = await res.json();
       console.error(
@@ -264,10 +269,7 @@ export async function getLLMKey(key: any): Promise<string | null> {
   }
 }
 
-export async function generateKey(
-  key: string,
-  username: string,
-): Promise<string | null> {
+export async function generateKey(key: string, username: string): Promise<any> {
   const generateKeyUrl = `${LITELLM_BASE_URL}/key/generate`;
   const body = {
     key: key,
@@ -296,7 +298,7 @@ export async function generateKey(
     if (res.ok) {
       const data = await res.json();
       // console.log(`[generateKey] Generated key for ${JSON.stringify(data)}`);
-      return data.key;
+      return data;
     } else {
       console.error(
         `[generateKey] Failed to generate key for ${key}, err: ${JSON.stringify(
@@ -310,3 +312,12 @@ export async function generateKey(
     return null;
   }
 }
+
+async function handle(req: NextRequest) {
+  return NextResponse.json({ status: req });
+}
+
+export const GET = handle;
+export const POST = handle;
+
+export const runtime = "nodejs";

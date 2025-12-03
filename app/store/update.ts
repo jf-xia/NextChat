@@ -135,26 +135,36 @@ export const useUpdateStore = createPersistStore(
 
     async updateUsage(force = false) {
       // only support openai for now
-      const overOneMinute = Date.now() - get().lastUpdateUsage >= ONE_MINUTE;
-      if (!overOneMinute && !force) return;
+      // const overOneMinute = Date.now() - get().lastUpdateUsage >= ONE_MINUTE;
+      // if (!overOneMinute && !force) return;
+      // set(() => ({
+      //   lastUpdateUsage: Date.now(),
+      // }));
+      // try {
+      //   const api = new ClientApi(ModelProvider.GPT);
+      //   const usage = await api.llm.usage();
+      //   if (usage) {
+      //     set(() => ({
+      //       used: usage.used,
+      //       subscription: usage.total,
+      //     }));
+      //   }
+      // } catch (e) {
+      //   console.error((e as Error).message);
+      // }
+    },
+    // set usage directly using values
+    setUsage(used: number | string, subscription: number | string) {
+      const usedNum = Number(used ?? get().used);
+      const subscriptionNum = Number(subscription ?? get().subscription);
 
       set(() => ({
+        used: isNaN(usedNum) ? get().used : usedNum,
+        subscription: isNaN(subscriptionNum)
+          ? get().subscription
+          : subscriptionNum,
         lastUpdateUsage: Date.now(),
       }));
-
-      try {
-        const api = new ClientApi(ModelProvider.GPT);
-        const usage = await api.llm.usage();
-
-        if (usage) {
-          set(() => ({
-            used: usage.used,
-            subscription: usage.total,
-          }));
-        }
-      } catch (e) {
-        console.error((e as Error).message);
-      }
     },
   }),
   {

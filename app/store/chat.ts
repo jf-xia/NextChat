@@ -31,6 +31,7 @@ import {
 import Locale, { getLang } from "../locales";
 import { prettyObject } from "../utils/format";
 import { createPersistStore } from "../utils/store";
+import { useUpdateStore } from "./update";
 import { estimateTokenLength } from "../utils/token";
 import { ModelConfig, ModelType, useAppConfig } from "./config";
 import { useAccessStore } from "./access";
@@ -470,7 +471,30 @@ export const useChatStore = createPersistStore(
               session.messages = session.messages.concat();
             });
           },
-          async onFinish(message) {
+          async onFinish(message, responseRes) {
+            const spend = responseRes?.headers?.get("spend");
+            const budget = responseRes?.headers?.get("budget") ?? "1";
+            console.log(
+              `[Usage] spend from response headers: ${spend}, budget: ${budget}`,
+            );
+            if (spend) {
+              try {
+                const used = Number(spend);
+                const subscription = Number(budget);
+                // update the usage store directly
+                const updateStore = useUpdateStore.getState();
+                if (!isNaN(used) || !isNaN(subscription)) {
+                  updateStore.setUsage(
+                    isNaN(used) ? updateStore.used : used,
+                    isNaN(subscription)
+                      ? updateStore.subscription
+                      : subscription,
+                  );
+                }
+              } catch (e) {
+                console.error("[Usage] failed to update usage from headers", e);
+              }
+            }
             botMessage.streaming = false;
             if (message) {
               botMessage.content = message;

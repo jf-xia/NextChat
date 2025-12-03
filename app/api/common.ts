@@ -11,6 +11,9 @@ export async function requestOpenai(req: NextRequest) {
 
   const isAzure = req.nextUrl.pathname.includes("azure/deployments");
 
+  var spend = req.headers.get("spend") ?? "";
+  var budget = req.headers.get("budget") ?? "";
+
   var authValue,
     authHeaderName = "";
   if (isAzure) {
@@ -162,6 +165,8 @@ export async function requestOpenai(req: NextRequest) {
     newHeaders.delete("www-authenticate");
     // to disable nginx buffering
     newHeaders.set("X-Accel-Buffering", "no");
+    newHeaders.set("spend", spend);
+    newHeaders.set("budget", budget);
 
     // Conditionally delete the OpenAI-Organization header from the response if [Org ID] is undefined or empty (not setup in ENV)
     // Also, this is to prevent the header from being sent to the client
