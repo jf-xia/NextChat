@@ -41,7 +41,7 @@
   --color-accent-fg: #0969da;
   --color-accent-emphasis: #0969da;
   --color-attention-subtle: #fff8c5;
-  --color-danger-fg: #cf222e;
+  --color-danger-fg: #f39298;
 }
 
 @mixin dark {
@@ -117,6 +117,12 @@
   :root {
     @include dark;
   }
+}
+
+.markdown-error {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: var(--color-danger-fg);
 }
 
 .markdown-body .octicon {

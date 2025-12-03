@@ -567,7 +567,17 @@ export function streamWithThink(
           let extraInfo = await res.clone().text();
           try {
             const resJson = await res.clone().json();
-            extraInfo = prettyObject(resJson);
+
+            const errorMessage = resJson?.error?.message ?? Locale.Store.Error;
+            const sanitizedMessage =
+              typeof errorMessage === "string"
+                ? errorMessage.replace(/litellm/g, "Error")
+                : errorMessage;
+            extraInfo =
+              sanitizedMessage +
+              "\n\n (hsu_ai_error_msg: " +
+              (resJson?.error?.type ?? "Unknown") +
+              ")";
           } catch {}
 
           if (res.status === 401) {

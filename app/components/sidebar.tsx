@@ -300,13 +300,9 @@ export function SideBar(props: { className?: string }) {
                       <div className={styles["quota-usage-text"]}>
                         <small>{Locale.Settings.Usage.Title}</small>
                         <div className={styles["quota-usage-values"]}>
-                          <b>{hasUsage ? usedAmount.toLocaleString() : "—"}</b>
+                          <b>{hasUsage ? usedAmount : "—"}</b>
                           <span className={styles["quota-usage-sep"]}>/</span>
-                          <small>
-                            {hasUsage
-                              ? subscriptionAmount.toLocaleString()
-                              : "—"}
-                          </small>
+                          <small>{hasUsage ? subscriptionAmount : "—"}</small>
                         </div>
                       </div>
                       <div className={styles["quota-usage-bar"]}>
@@ -459,7 +455,6 @@ export function SideBar(props: { className?: string }) {
                 }}
               />
             </div>
-            <div className={styles["sidebar-action"]}></div>
             <div className={styles["sidebar-action"]}>
               <IconButton
                 aria={"Logout"}

@@ -268,12 +268,17 @@ function tryWrapHtmlCode(text: string) {
 }
 
 function _MarkDownContent(props: { content: string }) {
+  const isError = useMemo(() => {
+    return props.content.includes("hsu_ai_error_msg");
+  }, [props.content]);
+
   const escapedContent = useMemo(() => {
     return tryWrapHtmlCode(escapeBrackets(props.content));
   }, [props.content]);
 
   return (
     <ReactMarkdown
+      className={isError ? "markdown-error" : ""}
       remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
       rehypePlugins={[
         RehypeKatex,
