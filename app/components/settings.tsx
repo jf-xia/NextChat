@@ -512,7 +512,7 @@ function SyncItems() {
   return (
     <>
       <List>
-        <ListItem
+        {/* <ListItem
           title={Locale.Settings.Sync.CloudState}
           subTitle={
             syncStore.lastProvider
@@ -546,7 +546,7 @@ function SyncItems() {
               />
             )}
           </div>
-        </ListItem>
+        </ListItem> */}
 
         <ListItem
           title={Locale.Settings.Sync.LocalState}
@@ -1780,7 +1780,7 @@ export function Settings() {
           </ListItem>
         </List>
 
-        <List>
+        {/* <List>
           <ListItem
             title={Locale.Settings.Prompt.Disable.Title}
             subTitle={Locale.Settings.Prompt.Disable.SubTitle}
@@ -1812,9 +1812,9 @@ export function Settings() {
               onClick={() => setShowPromptModal(true)}
             />
           </ListItem>
-        </List>
+        </List> */}
 
-        <List id={SlotID.CustomModel}>
+        {/* <List id={SlotID.CustomModel}>
           {saasStartComponent}
           {accessCodeComponent}
 
@@ -1912,7 +1912,7 @@ export function Settings() {
               }
             ></input>
           </ListItem>
-        </List>
+        </List> */}
 
         <List>
           <ModelConfigList
@@ -1928,7 +1928,7 @@ export function Settings() {
         {shouldShowPromptModal && (
           <UserPromptModal onClose={() => setShowPromptModal(false)} />
         )}
-        <List>
+        {/* <List>
           <RealtimeConfigList
             realtimeConfig={config.realtimeConfig}
             updateConfig={(updater) => {
@@ -1949,7 +1949,7 @@ export function Settings() {
               config.update((config) => (config.ttsConfig = ttsConfig));
             }}
           />
-        </List>
+        </List> */}
 
         <DangerItems />
       </div>

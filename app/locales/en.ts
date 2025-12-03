@@ -53,7 +53,7 @@ const en: LocaleType = {
     },
     Commands: {
       new: "Start a new chat",
-      newm: "Start a new chat with mask",
+      newm: "Start a new chat with agent",
       next: "Next Chat",
       prev: "Previous Chat",
       clear: "Clear Context",
@@ -69,7 +69,7 @@ const en: LocaleType = {
         dark: "Dark Theme",
       },
       Prompt: "Prompts",
-      Masks: "Masks",
+      Masks: "agents",
       Clear: "Clear Context",
       Settings: "Settings",
       UploadImage: "Upload Images",
@@ -88,7 +88,7 @@ const en: LocaleType = {
     StopSpeak: "Stop Speak",
     Config: {
       Reset: "Reset to Default",
-      SaveAs: "Save as Mask",
+      SaveAs: "Save as agent",
     },
     IsContext: "Contextual Prompt",
     ShortcutKey: {
@@ -114,7 +114,7 @@ const en: LocaleType = {
     },
     IncludeContext: {
       Title: "Including Context",
-      SubTitle: "Export context prompts in mask or not",
+      SubTitle: "Export context prompts in agent or not",
     },
     Steps: {
       Select: "Select",
@@ -253,18 +253,18 @@ const en: LocaleType = {
 
       LocalState: "Local Data",
       Overview: (overview: any) => {
-        return `${overview.chat} chats，${overview.message} messages，${overview.prompt} prompts，${overview.mask} masks`;
+        return `${overview.chat} chats，${overview.message} messages，${overview.prompt} prompts，${overview.mask} agents`;
       },
       ImportFailed: "Failed to import from file",
     },
     Mask: {
       Splash: {
-        Title: "Mask Splash Screen",
-        SubTitle: "Show a mask splash screen before starting new chat",
+        Title: "Agent Splash Screen",
+        SubTitle: "Show a agent splash screen before starting new chat",
       },
       Builtin: {
-        Title: "Hide Builtin Masks",
-        SubTitle: "Hide builtin masks in mask list",
+        Title: "Hide Builtin Agents",
+        SubTitle: "Hide builtin agents in agent list",
       },
     },
     Prompt: {
@@ -723,7 +723,7 @@ const en: LocaleType = {
     },
   },
   Mask: {
-    Name: "Mask",
+    Name: "Agent",
     Page: {
       Title: "Prompt Template",
       SubTitle: (count: number) => `${count} prompt templates`,
@@ -766,8 +766,8 @@ const en: LocaleType = {
           "Automatically collapse/expand overly long code blocks when CodeFold is enabled",
       },
       Share: {
-        Title: "Share This Mask",
-        SubTitle: "Generate a link to this mask",
+        Title: "Share This Agent",
+        SubTitle: "Generate a link to this agent",
         Action: "Copy Link",
       },
     },
@@ -775,8 +775,8 @@ const en: LocaleType = {
   NewChat: {
     Return: "Return",
     Skip: "Just Start",
-    Title: "Pick a Mask",
-    SubTitle: "Chat with the Soul behind the Mask",
+    Title: "Pick an Agent",
+    SubTitle: "Chat with the Soul behind the Agent",
     More: "Find More",
     NotShow: "Never Show Again",
     ConfirmNoShow: "Confirm to disable？You can enable it in settings later.",

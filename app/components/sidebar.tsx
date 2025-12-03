@@ -289,11 +289,6 @@ export function SideBar(props: { className?: string }) {
                     usedAmount,
                     subscriptionAmount,
                   )}
-                  onClick={() => {
-                    // If user clicks the quota area, go to settings page where balance could be checked
-                    navigate(Path.Settings);
-                  }}
-                  role="button"
                   aria-label={Locale.Settings.Usage.Title}
                 >
                   {!shouldNarrow ? (
