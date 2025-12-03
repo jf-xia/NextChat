@@ -239,9 +239,9 @@ export function SideBar(props: { className?: string }) {
   const percentUsed =
     updateStore.subscription && updateStore.subscription > 0
       ? Math.min(
-          100,
-          Math.round((updateStore.used / updateStore.subscription) * 100 || 0),
-        )
+        100,
+        Math.round((updateStore.used / updateStore.subscription) * 100 || 0),
+      )
       : 0;
 
   const [mcpEnabled, setMcpEnabled] = useState(false);
@@ -300,9 +300,9 @@ export function SideBar(props: { className?: string }) {
                       <div className={styles["quota-usage-text"]}>
                         <small>{Locale.Settings.Usage.Title}</small>
                         <div className={styles["quota-usage-values"]}>
-                          <b>{hasUsage ? usedAmount : "—"}</b>
+                          <b>{hasUsage ? usedAmount : "0"}</b>
                           <span className={styles["quota-usage-sep"]}>/</span>
-                          <small>{hasUsage ? subscriptionAmount : "—"}</small>
+                          <small>{hasUsage ? subscriptionAmount : "1000"}</small>
                         </div>
                       </div>
                       <div className={styles["quota-usage-bar"]}>
@@ -312,13 +312,13 @@ export function SideBar(props: { className?: string }) {
                             width: `${percentUsed}%`,
                             backgroundColor:
                               updateStore.subscription > 0 &&
-                              updateStore.used / updateStore.subscription >= 1
+                                updateStore.used / updateStore.subscription >= 1
                                 ? "#e74c3c" /* danger */
                                 : updateStore.subscription > 0 &&
                                   updateStore.used / updateStore.subscription >=
-                                    0.8
-                                ? "#f39c12" /* warning */
-                                : "var(--primary)",
+                                  0.8
+                                  ? "#f39c12" /* warning */
+                                  : "var(--primary)",
                           }}
                         />
                         <div className={styles["quota-usage-percent"]}>
@@ -336,19 +336,19 @@ export function SideBar(props: { className?: string }) {
                     </div>
                   )}
                 </div>
-                <b
+                {/* <b
                   style={{
                     position: "relative",
                     float: "right",
                     padding: "20px 5px 0px 5px",
                   }}
                 >
-                  {welcomeUsername}
-                </b>
+                </b> */}
                 <br />
                 <br />
                 <div style={{ paddingTop: "10px" }}>
-                  <b style={{ paddingLeft: "5px" }}>AI Safety Tips:</b>
+                  <b style={{ paddingLeft: "5px" }}>
+                    Welcome, {welcomeUsername} ! Let's start with safety:</b>
                   <br />
                   <ul style={{ paddingInlineStart: "20px", margin: "1px" }}>
                     <li>Never input private or sensitive data.</li>
