@@ -25,7 +25,7 @@ import {
 } from "@/app/utils/chat";
 import { cloudflareAIGatewayUrl } from "@/app/utils/cloudflare";
 import { ModelSize, DalleQuality, DalleStyle } from "@/app/typing";
-
+import { sendImageRequest, DalleRequestPayload, ImageRequestPayload } from "./openaiimage";
 import {
   ChatOptions,
   getHeaders,
@@ -41,6 +41,7 @@ import {
   getMessageTextContent,
   isVisionModel,
   isDalle3 as _isDalle3,
+  isOpenAIImageModel as _isOpenAIImageModel,
   getTimeoutMSByModel,
 } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
@@ -69,15 +70,7 @@ export interface RequestPayload {
   max_completion_tokens?: number;
 }
 
-export interface DalleRequestPayload {
-  model: string;
-  prompt: string;
-  response_format: "url" | "b64_json";
-  n: number;
-  size: ModelSize;
-  quality: DalleQuality;
-  style: DalleStyle;
-}
+// DalleRequestPayload moved to app/client/platforms/openaiimage.ts
 
 export class ChatGPTApi implements LLMApi {
   private disableListModels = true;
@@ -194,7 +187,7 @@ export class ChatGPTApi implements LLMApi {
       },
     };
 
-    let requestPayload: RequestPayload | DalleRequestPayload;
+    let requestPayload: RequestPayload | DalleRequestPayload | ImageRequestPayload;
 
     const isDalle3 = _isDalle3(options.config.model);
     const isO1OrO3 =
@@ -202,20 +195,31 @@ export class ChatGPTApi implements LLMApi {
       options.config.model.startsWith("o3") ||
       options.config.model.startsWith("o4-mini");
     const isGpt5 = options.config.model.startsWith("gpt-5");
-    if (isDalle3) {
-      const prompt = getMessageTextContent(
-        options.messages.slice(-1)?.pop() as any,
-      );
-      requestPayload = {
-        model: options.config.model,
-        prompt,
-        // URLs are only valid for 60 minutes after the image has been generated.
-        response_format: "b64_json", // using b64_json, and save image in CacheStorage
-        n: 1,
-        size: options.config?.size ?? "1024x1024",
-        quality: options.config?.quality ?? "standard",
-        style: options.config?.style ?? "vivid",
-      };
+    debugger;
+    const isImageModel = _isOpenAIImageModel(options.config.model);
+    if (isImageModel) {
+      const prompt = getMessageTextContent(options.messages.slice(-1)?.pop() as any);
+      if (isDalle3) {
+        requestPayload = {
+          model: options.config.model,
+          prompt,
+          // URLs are only valid for 60 minutes after the image has been generated.
+          response_format: "b64_json", // using b64_json, and save image in CacheStorage
+          n: 1,
+          size: options.config?.size ?? "1024x1024",
+          quality: options.config?.quality ?? "standard",
+          style: options.config?.style ?? "vivid",
+        };
+      } else {
+        requestPayload = {
+          model: options.config.model,
+          prompt,
+          output_format: "png",
+          n: 1,
+          size: "1024x1024",
+          quality: "low",
+        };
+      }
     } else {
       const visionModel = isVisionModel(options.config.model);
       const messages: ChatOptions["messages"] = [];
@@ -267,10 +271,9 @@ export class ChatGPTApi implements LLMApi {
     console.log("[Request] openai payload: ", requestPayload);
 
     const headers = await getHeaders();
-    const shouldStream = !isDalle3 && !!options.config.stream;
+    const shouldStream = !isImageModel && !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
-
     try {
       let chatPath = "";
       if (modelConfig.providerName === ServiceProvider.Azure) {
@@ -293,14 +296,14 @@ export class ChatGPTApi implements LLMApi {
             model?.provider?.providerName === ServiceProvider.Azure,
         );
         chatPath = this.path(
-          (isDalle3 ? Azure.ImagePath : Azure.ChatPath)(
+          (isImageModel ? Azure.ImagePath : Azure.ChatPath)(
             (model?.displayName ?? model?.name) as string,
             useCustomConfig ? useAccessStore.getState().azureApiVersion : "",
           ),
         );
       } else {
         chatPath = this.path(
-          isDalle3 ? OpenaiPath.ImagePath : OpenaiPath.ChatPath,
+          isImageModel ? OpenaiPath.ImagePath : OpenaiPath.ChatPath,
         );
       }
       if (shouldStream) {

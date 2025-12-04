@@ -1,6 +1,7 @@
 import { ApiPath } from "@/app/constant";
 import { NextRequest } from "next/server";
 import { handle as openaiHandler } from "../../openai";
+import { handle as openaiImageHandler } from "../../openaiimage";
 import { handle as azureHandler } from "../../azure";
 import { handle as googleHandler } from "../../google";
 import { handle as anthropicHandler } from "../../anthropic";
@@ -53,6 +54,8 @@ async function handle(
       return siliconflowHandler(req, { params });
     case ApiPath.OpenAI:
       return openaiHandler(req, { params });
+    case ApiPath.OpenAIImage:
+      return openaiImageHandler(req, { params });
     case ApiPath["302.AI"]:
       return ai302Handler(req, { params });
     default:

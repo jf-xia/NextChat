@@ -13,7 +13,8 @@ import {
   useAccessStore,
   useChatStore,
 } from "../store";
-import { ChatGPTApi, DalleRequestPayload } from "./platforms/openai";
+import { ChatGPTApi } from "./platforms/openai";
+import type { DalleRequestPayload } from "./platforms/openaiimage";
 import { GeminiProApi } from "./platforms/google";
 import { ClaudeApi } from "./platforms/anthropic";
 import { ErnieApi } from "./platforms/baidu";

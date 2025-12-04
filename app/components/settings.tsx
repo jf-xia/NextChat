@@ -712,7 +712,7 @@ export function Settings() {
         text={Locale.Settings.Access.SaasStart.ChatNow}
         onClick={() => {
           trackSettingsPageGuideToCPaymentClick();
-          window.location.href = SAAS_CHAT_URL;
+          if (SAAS_CHAT_URL) window.location.href = SAAS_CHAT_URL;
         }}
       />
     </ListItem>

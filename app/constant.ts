@@ -60,6 +60,7 @@ export enum ApiPath {
   Cors = "",
   Azure = "/api/azure",
   OpenAI = "/api/openai",
+  OpenAIImage = "/api/openaiimages",
   Anthropic = "/api/anthropic",
   Google = "/api/google",
   Baidu = "/api/baidu",
@@ -541,6 +542,12 @@ const openaiModels = [
   // "o4-mini",
 ];
 
+// Models used for OpenAI Image API (DALL·E, GPT Image)
+export const OpenAIImageModels = [
+  "dall-e-3",
+  "gpt-image-1",
+];
+
 const googleModels = [
   "gemini-2.5-flash",
   // "gemini-1.5-pro-latest",
@@ -767,7 +774,7 @@ export const DEFAULT_MODELS = [
     provider: {
       id: "openai",
       providerName: "HSUHK Azure OpenAI",
-      providerType: "openai",
+      providerType: OpenAIImageModels.includes(name) ? "openaiimages" : "openai",
       sorted: 5, // 这里是固定的，确保顺序与之前内置的版本一致
     },
   })),
