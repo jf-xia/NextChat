@@ -24,8 +24,8 @@ import {
   streamWithThink,
 } from "@/app/utils/chat";
 import { cloudflareAIGatewayUrl } from "@/app/utils/cloudflare";
-import { ModelSize, DalleQuality, DalleStyle } from "@/app/typing";
-import { sendImageRequest, DalleRequestPayload, ImageRequestPayload } from "./openaiimage";
+// types used in image API (moved to openaiimage)
+// image request moved to openaiimage
 import {
   ChatOptions,
   getHeaders,
@@ -40,8 +40,6 @@ import { getClientConfig } from "@/app/config/client";
 import {
   getMessageTextContent,
   isVisionModel,
-  isDalle3 as _isDalle3,
-  isOpenAIImageModel as _isOpenAIImageModel,
   getTimeoutMSByModel,
 } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
@@ -69,8 +67,6 @@ export interface RequestPayload {
   max_tokens?: number;
   max_completion_tokens?: number;
 }
-
-// DalleRequestPayload moved to app/client/platforms/openaiimage.ts
 
 export class ChatGPTApi implements LLMApi {
   private disableListModels = true;
@@ -123,7 +119,6 @@ export class ChatGPTApi implements LLMApi {
       let url = res.data?.at(0)?.url ?? "";
       const b64_json = res.data?.at(0)?.b64_json ?? "";
       if (!url && b64_json) {
-        // uploadImage
         url = await uploadImage(base64Image2Blob(b64_json, "image/png"));
       }
       return [
@@ -187,40 +182,13 @@ export class ChatGPTApi implements LLMApi {
       },
     };
 
-    let requestPayload: RequestPayload | DalleRequestPayload | ImageRequestPayload;
-
-    const isDalle3 = _isDalle3(options.config.model);
+    let requestPayload: RequestPayload;
     const isO1OrO3 =
       options.config.model.startsWith("o1") ||
       options.config.model.startsWith("o3") ||
       options.config.model.startsWith("o4-mini");
     const isGpt5 = options.config.model.startsWith("gpt-5");
-    debugger;
-    const isImageModel = _isOpenAIImageModel(options.config.model);
-    if (isImageModel) {
-      const prompt = getMessageTextContent(options.messages.slice(-1)?.pop() as any);
-      if (isDalle3) {
-        requestPayload = {
-          model: options.config.model,
-          prompt,
-          // URLs are only valid for 60 minutes after the image has been generated.
-          response_format: "b64_json", // using b64_json, and save image in CacheStorage
-          n: 1,
-          size: options.config?.size ?? "1024x1024",
-          quality: options.config?.quality ?? "standard",
-          style: options.config?.style ?? "vivid",
-        };
-      } else {
-        requestPayload = {
-          model: options.config.model,
-          prompt,
-          output_format: "png",
-          n: 1,
-          size: "1024x1024",
-          quality: "low",
-        };
-      }
-    } else {
+    
       const visionModel = isVisionModel(options.config.model);
       const messages: ChatOptions["messages"] = [];
       for (const v of options.messages) {
@@ -266,12 +234,11 @@ export class ChatGPTApi implements LLMApi {
       if (visionModel && !isO1OrO3 && !isGpt5) {
         requestPayload["max_tokens"] = Math.max(modelConfig.max_tokens, 4000);
       }
-    }
 
     console.log("[Request] openai payload: ", requestPayload);
 
     const headers = await getHeaders();
-    const shouldStream = !isImageModel && !!options.config.stream;
+    const shouldStream = !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
     try {
@@ -296,15 +263,13 @@ export class ChatGPTApi implements LLMApi {
             model?.provider?.providerName === ServiceProvider.Azure,
         );
         chatPath = this.path(
-          (isImageModel ? Azure.ImagePath : Azure.ChatPath)(
+          Azure.ChatPath(
             (model?.displayName ?? model?.name) as string,
             useCustomConfig ? useAccessStore.getState().azureApiVersion : "",
           ),
         );
       } else {
-        chatPath = this.path(
-          isImageModel ? OpenaiPath.ImagePath : OpenaiPath.ChatPath,
-        );
+        chatPath = this.path(OpenaiPath.ChatPath);
       }
       if (shouldStream) {
         let index = -1;

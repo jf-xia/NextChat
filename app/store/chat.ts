@@ -1,6 +1,6 @@
 import {
   getMessageTextContent,
-  isDalle3,
+  isImageModel,
   isOpenAIImageModel,
   safeLocalStorage,
   trimTopic,
@@ -457,7 +457,7 @@ export const useChatStore = createPersistStore(
             botMessage,
           ]);
         });
-
+        
         const api: ClientApi = getClientApi(modelConfig.providerName);
         // make request
         api.llm.chat({

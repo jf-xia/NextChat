@@ -67,7 +67,7 @@ import {
   copyToClipboard,
   getMessageImages,
   getMessageTextContent,
-  isDalle3,
+  isImageModel,
   isVisionModel,
   safeLocalStorage,
   getModelSizes,
@@ -82,7 +82,6 @@ import { uploadImage as uploadImageRemote } from "@/app/utils/chat";
 import dynamic from "next/dynamic";
 
 import { ChatControllerPool } from "../client/controller";
-import { DalleQuality, DalleStyle, ModelSize } from "../typing";
 import { Prompt, usePromptStore } from "../store/prompt";
 import Locale from "../locales";
 
@@ -435,11 +434,11 @@ export function ChatAction(props: {
   const iconWidth = showText ? width.full : width.icon;
   const textStyle = showText
     ? ({
-        opacity: 1,
-        visibility: "visible",
-        width: "auto",
-        paddingLeft: "6px",
-      } as React.CSSProperties)
+      opacity: 1,
+      visibility: "visible",
+      width: "auto",
+      paddingLeft: "6px",
+    } as React.CSSProperties)
     : undefined;
 
   return (
@@ -578,12 +577,12 @@ export function ChatActions(props: {
   const [showQualitySelector, setShowQualitySelector] = useState(false);
   const [showStyleSelector, setShowStyleSelector] = useState(false);
   const modelSizes = getModelSizes(currentModel);
-  const dalle3Qualitys: DalleQuality[] = ["standard", "hd"];
-  const dalle3Styles: DalleStyle[] = ["vivid", "natural"];
+  const imageQualitys = ["low", "medium", "high"];
+  const imageOutputFormat = ["png", "jpeg"];
   const currentSize =
-    session.mask.modelConfig?.size ?? ("1024x1024" as ModelSize);
-  const currentQuality = session.mask.modelConfig?.quality ?? "standard";
-  const currentStyle = session.mask.modelConfig?.style ?? "vivid";
+    session.mask.modelConfig?.size ?? ("1024x1024");
+  const currentQuality = session.mask.modelConfig?.quality ?? "low";
+  const currentFormat = session.mask.modelConfig?.style ?? "png";
 
   const isMobileScreen = useMobileScreen();
 
@@ -643,11 +642,10 @@ export function ChatActions(props: {
           <Selector
             defaultSelectedValue={`${currentModel}@${currentProviderName}`}
             items={models.map((m) => ({
-              title: `${m.displayName}${
-                m?.provider?.providerName
-                  ? " (" + m?.provider?.providerName + ")"
-                  : ""
-              }`,
+              title: `${m.displayName}${m?.provider?.providerName
+                ? " (" + m?.provider?.providerName + ")"
+                : ""
+                }`,
               value: `${m.name}@${m?.provider?.providerName}`,
             }))}
             onClose={() => setShowModelSelector(false)}
@@ -761,7 +759,7 @@ export function ChatActions(props: {
           />
         )}
 
-        {isDalle3(currentModel) && (
+        {isImageModel(currentModel) && (
           <ChatAction
             onClick={() => setShowQualitySelector(true)}
             text={currentQuality}
@@ -772,7 +770,7 @@ export function ChatActions(props: {
         {showQualitySelector && (
           <Selector
             defaultSelectedValue={currentQuality}
-            items={dalle3Qualitys.map((m) => ({
+            items={imageQualitys.map((m) => ({
               title: m,
               value: m,
             }))}
@@ -788,18 +786,18 @@ export function ChatActions(props: {
           />
         )}
 
-        {isDalle3(currentModel) && (
+        {isImageModel(currentModel) && (
           <ChatAction
             onClick={() => setShowStyleSelector(true)}
-            text={currentStyle}
+            text={currentFormat}
             icon={<StyleIcon />}
           />
         )}
 
         {showStyleSelector && (
           <Selector
-            defaultSelectedValue={currentStyle}
-            items={dalle3Styles.map((m) => ({
+            defaultSelectedValue={currentFormat}
+            items={imageOutputFormat.map((m) => ({
               title: m,
               value: m,
             }))}
@@ -1024,9 +1022,9 @@ function _Chat() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isScrolledToBottom = scrollRef?.current
     ? Math.abs(
-        scrollRef.current.scrollHeight -
-          (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
-      ) <= 1
+      scrollRef.current.scrollHeight -
+      (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
+    ) <= 1
     : false;
   const isAttachWithTop = useMemo(() => {
     const lastMessage = scrollRef.current?.lastElementChild as HTMLElement;
@@ -1372,27 +1370,27 @@ function _Chat() {
       .concat(
         isLoading
           ? [
-              {
-                ...createMessage({
-                  role: "assistant",
-                  content: "……",
-                }),
-                preview: true,
-              },
-            ]
+            {
+              ...createMessage({
+                role: "assistant",
+                content: "……",
+              }),
+              preview: true,
+            },
+          ]
           : [],
       )
       .concat(
         userInput.length > 0 && config.sendPreviewBubble
           ? [
-              {
-                ...createMessage({
-                  role: "user",
-                  content: userInput,
-                }),
-                preview: true,
-              },
-            ]
+            {
+              ...createMessage({
+                role: "user",
+                content: userInput,
+              }),
+              preview: true,
+            },
+          ]
           : [],
       );
   }, [
@@ -1489,7 +1487,7 @@ function _Chat() {
         if (payload.key || payload.url) {
           showConfirm(
             Locale.URLCommand.Settings +
-              `\n${JSON.stringify(payload, null, 4)}`,
+            `\n${JSON.stringify(payload, null, 4)}`,
           ).then((res) => {
             if (!res) return;
             if (payload.key) {
@@ -2028,7 +2026,7 @@ function _Chat() {
                                       <img
                                         className={
                                           styles[
-                                            "chat-message-item-image-multi"
+                                          "chat-message-item-image-multi"
                                           ]
                                         }
                                         key={index}

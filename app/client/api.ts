@@ -14,7 +14,6 @@ import {
   useChatStore,
 } from "../store";
 import { ChatGPTApi } from "./platforms/openai";
-import type { DalleRequestPayload } from "./platforms/openaiimage";
 import { GeminiProApi } from "./platforms/google";
 import { ClaudeApi } from "./platforms/anthropic";
 import { ErnieApi } from "./platforms/baidu";
@@ -29,6 +28,7 @@ import { ChatGLMApi } from "./platforms/glm";
 import { SiliconflowApi } from "./platforms/siliconflow";
 import { Ai302Api } from "./platforms/ai302";
 import { getToken, msalInstance } from "../auth/authConfig";
+import { OpenaiImageApi } from "./platforms/openaiimage";
 
 export const ROLES = ["system", "user", "assistant"] as const;
 export type MessageRole = (typeof ROLES)[number];
@@ -63,9 +63,6 @@ export interface LLMConfig {
   stream?: boolean;
   presence_penalty?: number;
   frequency_penalty?: number;
-  size?: DalleRequestPayload["size"];
-  quality?: DalleRequestPayload["quality"];
-  style?: DalleRequestPayload["style"];
 }
 
 export interface SpeechOptions {
@@ -142,6 +139,9 @@ export class ClientApi {
 
   constructor(provider: ModelProvider = ModelProvider.GPT) {
     switch (provider) {
+      case ModelProvider.OpenaiImage:
+        this.llm = new OpenaiImageApi();
+        break;
       case ModelProvider.GeminiPro:
         this.llm = new GeminiProApi();
         break;
@@ -387,6 +387,8 @@ export async function getHeaders(ignoreHeaders: boolean = false) {
 
 export function getClientApi(provider: ServiceProvider): ClientApi {
   switch (provider) {
+    case "HSUHK AzureAI Image":
+      return new ClientApi(ModelProvider.OpenaiImage);
     case ServiceProvider.Google:
       return new ClientApi(ModelProvider.GeminiPro);
     case ServiceProvider.Anthropic:

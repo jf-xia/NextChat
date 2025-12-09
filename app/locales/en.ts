@@ -8,7 +8,7 @@ const isApp = !!getClientConfig()?.isApp;
 const en: LocaleType = {
   WIP: "Coming Soon...",
   Error: {
-    Unauthorized: `😆 There was an issue with the conversation, please [contact](mailto:${SAAS_CHAT_UTM_URL}) `,
+    Unauthorized: `😆 There was an issue with the conversation, please contact ${SAAS_CHAT_UTM_URL} for support.`,
   },
   Auth: {
     Return: "Return",

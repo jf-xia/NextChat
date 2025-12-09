@@ -135,6 +135,7 @@ export enum ServiceProvider {
   DeepSeek = "DeepSeek",
   SiliconFlow = "SiliconFlow",
   "302.AI" = "302.AI",
+  "HSUHK AzureAI Image" = "HSUHK AzureAI Image",
 }
 
 // Google API safety settings, see https://ai.google.dev/gemini-api/docs/safety-settings
@@ -162,6 +163,7 @@ export enum ModelProvider {
   DeepSeek = "DeepSeek",
   SiliconFlow = "SiliconFlow",
   "302.AI" = "302.AI",
+  OpenaiImage = "OpenaiImage",
 }
 
 export const Stability = {
@@ -521,8 +523,8 @@ const openaiModels = [
   // "gpt-5-chat",
   // "gpt-5-mini",
   // "gpt-5-nano",
-  "dall-e-3",
-  "gpt-image-1",
+  // "dall-e-3",
+  // "gpt-image-1",
   "gpt-5",
   // "gpt-5-chat-2025-01-01-preview",
   "gpt-4o",
@@ -543,8 +545,8 @@ const openaiModels = [
 ];
 
 // Models used for OpenAI Image API (DALL·E, GPT Image)
-export const OpenAIImageModels = [
-  "dall-e-3",
+export const openAIImageModels = [
+  // "dall-e-3",
   "gpt-image-1",
 ];
 
@@ -756,17 +758,6 @@ const ai302Models = [
 
 let seq = 1000; // 内置的模型序号生成器从1000开始
 export const DEFAULT_MODELS = [
-  ...googleModels.map((name) => ({
-    name,
-    available: true,
-    sorted: seq++,
-    provider: {
-      id: "google",
-      providerName: "HSUHK Google VertexAI",
-      providerType: "openai",
-      sorted: 100,
-    },
-  })),
   ...openaiModels.map((name) => ({
     name,
     available: true,
@@ -774,8 +765,19 @@ export const DEFAULT_MODELS = [
     provider: {
       id: "openai",
       providerName: "HSUHK Azure OpenAI",
-      providerType: OpenAIImageModels.includes(name) ? "openaiimages" : "openai",
+      providerType: "openai",
       sorted: 5, // 这里是固定的，确保顺序与之前内置的版本一致
+    },
+  })),
+  ...openAIImageModels.map((name) => ({
+    name,
+    available: true,
+    sorted: seq++, // Global sequence sort(index)
+    provider: {
+      id: "openai_image",
+      providerName: "HSUHK AzureAI Image",
+      providerType: "openaiimages",
+      sorted: 6, // 这里是固定的，确保顺序与之前内置的版本一致
     },
   })),
   ...deepseekModels.map((name) => ({
@@ -787,6 +789,17 @@ export const DEFAULT_MODELS = [
       providerName: "HSUHK Azure DeepSeek",
       providerType: "openai",
       sorted: 13,
+    },
+  })),
+  ...googleModels.map((name) => ({
+    name,
+    available: true,
+    sorted: seq++,
+    provider: {
+      id: "google",
+      providerName: "HSUHK Google VertexAI",
+      providerType: "openai",
+      sorted: 100,
     },
   })),
   // ...openaiModels.map((name) => ({

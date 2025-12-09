@@ -6,7 +6,7 @@ const isApp = !!getClientConfig()?.isApp;
 const tw = {
   WIP: "此功能仍在開發中……",
   Error: {
-    Unauthorized: `😆 對話遇到了一些問題，請 [聯繫](mailto:${SAAS_CHAT_UTM_URL}) `,
+    Unauthorized: `😆 對話遇到了一些問題，請聯繫 ${SAAS_CHAT_UTM_URL}  `,
   },
 
   Auth: {

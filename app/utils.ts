@@ -9,9 +9,8 @@ import {
 } from "./constant";
 // import { fetch as tauriFetch, ResponseType } from "@tauri-apps/api/http";
 import { fetch as tauriStreamFetch } from "./utils/stream";
-import { VISION_MODEL_REGEXES, EXCLUDE_VISION_MODEL_REGEXES, OpenAIImageModels } from "./constant";
+import { VISION_MODEL_REGEXES, EXCLUDE_VISION_MODEL_REGEXES, openAIImageModels } from "./constant";
 import { useAccessStore } from "./store";
-import { ModelSize } from "./typing";
 
 export function trimTopic(topic: string) {
   // Fix an issue where double quotes still show in the Indonesian language
@@ -292,8 +291,9 @@ export function isVisionModel(model: string) {
   );
 }
 
-export function isDalle3(model: string) {
-  return "dall-e-3" === model;
+export function isImageModel(model: string) {
+  if (model == "gpt-image-1") return true;
+  return false;
 }
 
 export function isOpenAIImageModel(model: string) {
@@ -302,7 +302,7 @@ export function isOpenAIImageModel(model: string) {
   // if (envVisionModels?.includes(model)) {
   //   return true;
   // }
-  return OpenAIImageModels.includes(model);
+  return openAIImageModels.includes(model);
 }
 
 export function getTimeoutMSByModel(model: string) {
@@ -319,26 +319,14 @@ export function getTimeoutMSByModel(model: string) {
   return REQUEST_TIMEOUT_MS;
 }
 
-export function getModelSizes(model: string): ModelSize[] {
-  if (isDalle3(model)) {
-    return ["1024x1024", "1792x1024", "1024x1792"];
-  }
-  if (model.toLowerCase().includes("cogview")) {
-    return [
-      "1024x1024",
-      "768x1344",
-      "864x1152",
-      "1344x768",
-      "1152x864",
-      "1440x720",
-      "720x1440",
-    ];
-  }
-  return [];
+export function getModelSizes(model: string) {
+  return ["1024x1024", "1792x1024", "1024x1792"];
 }
 
+// todo
 export function supportsCustomSize(model: string): boolean {
-  return getModelSizes(model).length > 0;
+  if (model == "gpt-image-1") return true;
+  return false;
 }
 
 export function showPlugins(provider: ServiceProvider, model: string) {
