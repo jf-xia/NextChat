@@ -54,8 +54,7 @@ export function Avatar(props: { model?: ModelType; avatar?: string }) {
     if (
       modelName.startsWith("gpt") ||
       modelName.startsWith("chatgpt") ||
-      modelName.startsWith("dall-e") ||
-      modelName.startsWith("dalle") ||
+      // modelName.startsWith("gpt-image") ||
       modelName.startsWith("o1") ||
       modelName.startsWith("o3")
     ) {

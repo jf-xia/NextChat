@@ -113,7 +113,7 @@ export const UNFINISHED_INPUT = (id: string) => "unfinished-input-" + id;
 
 export const STORAGE_KEY = "chatgpt-next-web";
 
-export const REQUEST_TIMEOUT_MS = 60000;
+export const REQUEST_TIMEOUT_MS = 600000;
 export const REQUEST_TIMEOUT_MS_FOR_THINKING = REQUEST_TIMEOUT_MS * 5;
 
 export const EXPORT_MESSAGE_CLASS_NAME = "export-markdown";
@@ -489,7 +489,6 @@ export const VISION_MODEL_REGEXES = [
   /qwen-vl/,
   /qwen2-vl/,
   /gpt-4-turbo(?!.*preview)/,
-  // /^dall-e-3$/,
   /glm-4v/,
   /vl/i,
   /o3/,
@@ -523,7 +522,6 @@ const openaiModels = [
   // "gpt-5-chat",
   // "gpt-5-mini",
   // "gpt-5-nano",
-  // "dall-e-3",
   // "gpt-image-1",
   "gpt-5",
   // "gpt-5-chat-2025-01-01-preview",
@@ -544,9 +542,8 @@ const openaiModels = [
   // "o4-mini",
 ];
 
-// Models used for OpenAI Image API (DALL·E, GPT Image)
+// Models used for OpenAI Image API (GPT Image)
 export const openAIImageModels = [
-  // "dall-e-3",
   "gpt-image-1",
 ];
 

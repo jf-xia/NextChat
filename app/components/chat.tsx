@@ -703,11 +703,12 @@ export function ChatActions(props: {
           }
         /> */}
 
-        <ChatAction
-          onClick={props.showPromptHints}
-          text={Locale.Chat.InputActions.Prompt}
-          icon={<PromptIcon />}
-        />
+        {!isImageModel(currentModel) && (
+          <ChatAction
+            onClick={props.showPromptHints}
+            text={Locale.Chat.InputActions.Prompt}
+            icon={<PromptIcon />}
+          />)}
 
         {/* <ChatAction
           onClick={() => {
@@ -716,21 +717,21 @@ export function ChatActions(props: {
           text={Locale.Chat.InputActions.Masks}
           icon={<MaskIcon />}
         /> */}
-
-        <ChatAction
-          text={Locale.Chat.InputActions.Clear}
-          icon={<BreakIcon />}
-          onClick={() => {
-            chatStore.updateTargetSession(session, (session) => {
-              if (session.clearContextIndex === session.messages.length) {
-                session.clearContextIndex = undefined;
-              } else {
-                session.clearContextIndex = session.messages.length;
-                session.memoryPrompt = ""; // will clear memory
-              }
-            });
-          }}
-        />
+        {!isImageModel(currentModel) && (
+          <ChatAction
+            text={Locale.Chat.InputActions.Clear}
+            icon={<BreakIcon />}
+            onClick={() => {
+              chatStore.updateTargetSession(session, (session) => {
+                if (session.clearContextIndex === session.messages.length) {
+                  session.clearContextIndex = undefined;
+                } else {
+                  session.clearContextIndex = session.messages.length;
+                  session.memoryPrompt = ""; // will clear memory
+                }
+              });
+            }}
+          />)}
 
         {supportsCustomSize(currentModel) && (
           <ChatAction

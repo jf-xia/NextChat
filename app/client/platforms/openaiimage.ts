@@ -108,8 +108,8 @@ export class OpenaiImageApi implements LLMApi {
     let requestPayload: ImageRequestPayload = {
       model: modelConfig.model,
       prompt,
-      output_format: "png",
       n: 1,
+      output_format: (options.config as any)?.style ?? "png",
       size: (options.config as any)?.size ?? "1024x1024",
       quality: (options.config as any)?.quality ?? "low",
     };
@@ -218,26 +218,28 @@ export class OpenaiImageApi implements LLMApi {
 }
 
 export async function extractImageMessage(res: any) {
-  if (res.error) {
-    return "```json\n" + JSON.stringify(res, null, 4) + "\n```";
-  }
-  if (res.data) {
-    let url = res.data?.at(0)?.url ?? "";
-    const b64_json = res.data?.at(0)?.b64_json ?? "";
-    if (!url && b64_json) {
-      url = await uploadImage(base64Image2Blob(b64_json, "image/png"));
+    if (res.error) {
+      return "```\n" + JSON.stringify(res, null, 4) + "\n```";
     }
-    return [
-      {
-        type: "image_url",
-        image_url: {
-          url,
+    // dalle3 model return url, using url create image message
+    if (res.data) {
+      let url = res.data?.at(0)?.url ?? "";
+      const b64_json = res.data?.at(0)?.b64_json ?? "";
+      if (!url && b64_json) {
+        url = await uploadImage(base64Image2Blob(b64_json, "image/png"));
+      }
+      return [
+        {
+          type: "image_url",
+          image_url: {
+            url,
+          },
         },
-      },
-    ];
+      ];
+    }
+    return res.choices?.at(0)?.message?.content ?? res;
   }
-  return res.choices?.at(0)?.message?.content ?? res;
-}
+
 
 function buildPathFromConfig(modelConfig: any, useAzure = false) {
   let baseUrl = "";
@@ -275,8 +277,8 @@ export async function sendImageRequest(options: ChatOptions) {
   const requestPayload: ImageRequestPayload = {
       model: modelConfig.model,
       prompt,
-      output_format: "png",
       n: 1,
+      output_format: (options.config as any)?.style ?? "png",
       size: (options.config as any)?.size ?? "1024x1024",
       quality: (options.config as any)?.quality ?? "low",
     };

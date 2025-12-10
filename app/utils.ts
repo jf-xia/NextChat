@@ -308,8 +308,8 @@ export function isOpenAIImageModel(model: string) {
 export function getTimeoutMSByModel(model: string) {
   model = model.toLowerCase();
   if (
-    model.startsWith("dall-e") ||
-    model.startsWith("dalle") ||
+    // todo
+    model.startsWith("gpt-image") ||
     model.startsWith("o1") ||
     model.startsWith("o3") ||
     model.includes("deepseek-r") ||
@@ -320,7 +320,7 @@ export function getTimeoutMSByModel(model: string) {
 }
 
 export function getModelSizes(model: string) {
-  return ["1024x1024", "1792x1024", "1024x1792"];
+  return ["1024x1024", "1024x1536", "1536x1024"];
 }
 
 // todo

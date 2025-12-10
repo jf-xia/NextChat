@@ -690,7 +690,7 @@ export const useChatStore = createPersistStore(
         const config = useAppConfig.getState();
         const session = targetSession;
         const modelConfig = session.mask.modelConfig;
-        // skip summarize when using openai image models (DALL·E or gpt-image)
+        // skip summarize when using openai image models (gpt-image)
         if (isOpenAIImageModel(modelConfig.model)) {
           return;
         }
