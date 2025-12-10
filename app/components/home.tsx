@@ -33,6 +33,7 @@ import clsx from "clsx";
 import { initializeMcpSystem, isMcpEnabled } from "../mcp/actions";
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
+import { MsalRootProvider } from "../auth/MsalRootProvider";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -278,8 +279,10 @@ export function Home() {
   }
 
   return (
-    <ErrorBoundary>
-      <Router>{isAuthenticated ? <Screen /> : <AuthPage />}</Router>
-    </ErrorBoundary>
+    <MsalRootProvider>
+      <ErrorBoundary>
+        <Router>{isAuthenticated ? <Screen /> : <AuthPage />}</Router>
+      </ErrorBoundary>
+    </MsalRootProvider>
   );
 }
