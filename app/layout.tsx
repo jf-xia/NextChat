@@ -7,7 +7,7 @@ import type { Metadata, Viewport } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import { getServerSideConfig } from "./config/server";
-// import { MsalRootProvider } from "./auth/MsalRootProvider";
+import { MsalRootProvider } from "./auth/MsalRootProvider";
 
 export const metadata: Metadata = {
   title: "AIChat",
@@ -51,7 +51,8 @@ export default function RootLayout({
         <script src="/serviceWorkerRegister.js" defer></script>
       </head>
       <body>
-        {children}
+
+        <MsalRootProvider>{children}</MsalRootProvider>
         {/* {serverConfig?.isVercel && (
           <>
             <SpeedInsights />
