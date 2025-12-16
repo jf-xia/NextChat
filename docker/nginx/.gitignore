@@ -1,0 +1,7 @@
+*
+!.gitignore
+!nginx.conf
+!netdata
+!ssl
+!ssl/certs
+!ssl/private

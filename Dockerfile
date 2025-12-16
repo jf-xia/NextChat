@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN yarn config set registry 'https://registry.npmmirror.com/'
+# RUN yarn config set registry 'https://registry.npmmirror.com/'
 RUN npm pkg delete scripts.prepare && yarn install
 
 FROM base AS builder
@@ -18,6 +18,9 @@ RUN apk update && apk add --no-cache git
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ARG ENV_FILE=.env
+COPY ${ENV_FILE} ./.env.local
 
 RUN yarn build
 

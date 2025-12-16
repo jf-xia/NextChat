@@ -1,0 +1,147 @@
+general_settings:
+  store_model_in_db: True
+  store_prompts_in_spend_logs: False
+
+model_list:
+  - model_name: DeepSeek-R1
+    litellm_params:
+      model: azure_ai/deepseek-r1
+      api_key: os.environ/AZURE_AI_SERVICES_KEY
+      api_base: os.environ/AZURE_AI_API_BASE
+  - model_name: DeepSeek-V3
+    litellm_params:
+      model: azure_ai/deepseek-v3
+      api_key: os.environ/AZURE_AI_SERVICES_KEY
+      api_base: os.environ/AZURE_AI_API_BASE
+  - model_name: gpt-5
+    litellm_params:
+      model: azure/gpt-5
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+      drop_params: True
+      reasoning_effort:
+        effort: "minimal"
+        summary: "concise"
+      # set_verbose: False
+      # success_callback: ["langfuse"]
+      # cache: True
+      # request_timeout: 600
+    model_info:
+      base_model: azure/gpt-5
+  - model_name: gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-4o
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: azure/gpt-4o-mini
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-4o-mini
+  - model_name: gpt-image-1
+    litellm_params:
+      model: azure/gpt-image-1
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-image-1
+  - model_name: gpt-image-1-mini
+    litellm_params:
+      model: azure/gpt-image-1-mini
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-image-1-mini
+  - model_name: dall-e-3
+    litellm_params:
+      model: azure/dall-e-3
+      api_base: os.environ/AZURE_API2_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API2_KEY
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: vertex_ai/gemini-2.5-flash
+      vertex_ai_project: os.environ/VERTEX_AI_PROJECT
+      vertex_ai_location: os.environ/VERTEX_AI_LOCATION
+      vertex_ai_credentials: "/app/vertex_ai_credentials.json"
+  - model_name: gemini-2.5-flash-image
+    litellm_params:
+      model: vertex_ai/gemini-2.5-flash-image
+      vertex_ai_project: os.environ/VERTEX_AI_PROJECT
+      vertex_ai_location: os.environ/VERTEX_AI_LOCATION
+      vertex_ai_credentials: "/app/vertex_ai_credentials.json"
+      # safety_settings:
+      #   - category: HARM_CATEGORY_HARASSMENT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_HATE_SPEECH
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_DANGEROUS_CONTENT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_UNSPECIFIED
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+  - model_name: gemini-2.5-pro
+    litellm_params:
+      model: vertex_ai/gemini-2.5-pro
+      vertex_ai_project: os.environ/VERTEX_AI_PROJECT
+      vertex_ai_location: os.environ/VERTEX_AI_LOCATION
+      vertex_ai_credentials: "/app/vertex_ai_credentials.json"
+  - model_name: gemini-3-pro-preview
+    litellm_params:
+      model: vertex_ai/gemini-3-pro-preview
+      vertex_ai_project: os.environ/VERTEX_AI_PROJECT
+      vertex_ai_location: os.environ/VERTEX_AI_LOCATION
+      vertex_ai_credentials: "/app/vertex_ai_credentials.json"
+  - model_name: gemini-3-pro-image-preview
+    litellm_params:
+      model: vertex_ai/gemini-3-pro-image-preview
+      vertex_ai_project: os.environ/VERTEX_AI_PROJECT
+      vertex_ai_location: os.environ/VERTEX_AI_LOCATION
+      vertex_ai_credentials: "/app/vertex_ai_credentials.json"
+
+litellm_settings:
+  # "HARM_BLOCK_THRESHOLD_UNSPECIFIED", "BLOCK_LOW_AND_ABOVE", "BLOCK_MEDIUM_AND_ABOVE", "BLOCK_ONLY_HIGH", "BLOCK_NONE",
+  vertex_ai_safety_settings:
+    - category: HARM_CATEGORY_HARASSMENT
+      threshold: BLOCK_MEDIUM_AND_ABOVE
+    - category: HARM_CATEGORY_HATE_SPEECH
+      threshold: BLOCK_MEDIUM_AND_ABOVE
+    - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
+      threshold: BLOCK_MEDIUM_AND_ABOVE
+    - category: HARM_CATEGORY_DANGEROUS_CONTENT
+      threshold: BLOCK_MEDIUM_AND_ABOVE
+    - category: HARM_CATEGORY_UNSPECIFIED
+      threshold: BLOCK_MEDIUM_AND_ABOVE
+  default_team_settings:
+    - team_id: "default-settings"
+      max_budget: 10000.0
+      budget_duration: "30d"
+      team_member_budget: 1.0
+      team_member_rpm_limit: 10
+      team_member_tpm_limit: 1000000
+  success_callback: ["prometheus"]
+  failure_callback: ["prometheus"]
+
+guardrails:
+  - guardrail_name: "custom-pre-guard"
+    litellm_params:
+      guardrail: custom_guardrail.myCustomGuardrail # 👈 Key change
+      mode: "pre_call" # runs async_pre_call_hook
+  # - guardrail_name: "custom-during-guard"
+  #   litellm_params:
+  #     guardrail: custom_guardrail.myCustomGuardrail
+  #     mode: "during_call"               # runs async_moderation_hook
+  # - guardrail_name: "custom-post-guard"
+  #   litellm_params:
+  #     guardrail: custom_guardrail.myCustomGuardrail
+  #     mode: "post_call"                 # runs async_post_call_success_hook

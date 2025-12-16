@@ -1,16 +1,106 @@
 services:
-  chatgpt:
-    container_name: aiweb
-    image: node:20-alpine
+  # nginx:
+  #   image: "nginx:latest"
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+  #     - ./docker/nginx/ssl/certs:/etc/ssl/certs
+  #     - ./docker/nginx/ssl/private:/etc/ssl/private
+  #   depends_on:
+  #     - chatweb
+  #     - litellm
+  #   networks:
+  #     - app-tier
+  #   restart: unless-stopped
+
+  chatweb:
+    container_name: chatweb
+    build:
+      context: .
+      args:
+        ENV_FILE: .env
     working_dir: /app
     env_file:
       - .env
-    volumes:
-      - ./:/app:delegated
-      - /app/node_modules
+    # volumes:
+    #   - ./:/app:delegated
+    #   - /app/node_modules
     ports:
       - "80:3000"
     restart: unless-stopped
-    # 启动时安装依赖、构建并运行；视项目使用 yarn 或 npm 调整命令
-    # yarn config set registry 'https://registry.npmmirror.com/' && (npm pkg delete scripts.prepare || true) && yarn install --network-concurrency 1 &&
-    command: sh -c "yarn install && yarn run start"
+    networks:
+      - app-tier
+    # command: sh -c "yarn install && yarn run build && yarn run start"
+
+  litellm:
+    build:
+      context: .
+      args:
+        target: runtime
+    image: ghcr.io/berriai/litellm:main-stable
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./custom_guardrail.py:/app/custom_guardrail.py
+      - ./vertex_ai_credentials.json:/app/vertex_ai_credentials.json
+    command:
+      - "--config=/app/config.yaml"
+    ports:
+      - "4000:4000" # Map the container port to the host, change the host port if necessary
+    environment:
+      DATABASE_URL: "postgresql://llmproxy:hsuhk20251018999999@db:5432/litellm"
+      STORE_MODEL_IN_DB: "True" # allows adding models to proxy via UI
+    env_file:
+      - .env # Load local .env file
+    networks:
+      - app-tier
+    depends_on:
+      - db # Indicates that this service depends on the 'db' service, ensuring 'db' starts first
+    healthcheck: # Defines the health check configuration for the container
+      test: [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 http://localhost:4000/health/liveliness || exit 1",
+        ] # Command to execute for health check
+      interval: 30s # Perform health check every 30 seconds
+      timeout: 10s # Health check command times out after 10 seconds
+      retries: 3 # Retry up to 3 times if health check fails
+      start_period: 40s # Wait 40 seconds after container start before beginning health checks
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: litellm_db
+    networks:
+      - app-tier
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_USER: llmproxy
+      POSTGRES_PASSWORD: hsuhk20251018999999
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres_data:/var/lib/postgresql/data # Persists Postgres data across container restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./docker/prometheus_data:/prometheus/
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+    restart: unless-stopped
+    networks:
+      - app-tier
+networks:
+  app-tier:
+    driver: bridge

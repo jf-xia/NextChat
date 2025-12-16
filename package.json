@@ -5,6 +5,7 @@
   "scripts": {
     "mask": "npx tsx app/masks/build.ts",
     "mask:watch": "npx watch \"yarn mask\" app/masks",
+    "dev:https": "node server-https.js",
     "dev": "concurrently -r \"yarn run mask:watch\" \"next dev\"",
     "build": "yarn mask && cross-env BUILD_MODE=standalone next build",
     "start": "next start",
