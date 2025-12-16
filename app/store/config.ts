@@ -79,7 +79,7 @@ export const DEFAULT_CONFIG = {
     template: config?.template ?? DEFAULT_INPUT_TEMPLATE,
     size: "1024x1024",
     quality: "low",
-    style: "vivid",
+    style: "png",
   },
 
   ttsConfig: {

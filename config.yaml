@@ -129,8 +129,15 @@ litellm_settings:
       team_member_budget: 1.0
       team_member_rpm_limit: 10
       team_member_tpm_limit: 1000000
-  success_callback: ["prometheus"]
-  failure_callback: ["prometheus"]
+  callbacks: ["prometheus"]
+  # success_callback: ["prometheus"]
+  # failure_callback: ["prometheus"]
+  # prometheus_metrics_config:
+  #   - group: "all_metrics"
+  #     metrics:
+  #       - "litellm_requests_metric"
+  #       - "litellm_proxy_total_requests_metric"
+  #       - "litellm_spend_metric"
 
 guardrails:
   - guardrail_name: "custom-pre-guard"

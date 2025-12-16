@@ -292,7 +292,7 @@ export function isVisionModel(model: string) {
 }
 
 export function isImageModel(model: string) {
-  if (model == "gpt-image-1") return true;
+  if (openAIImageModels.includes(model)) return true;
   return false;
 }
 
@@ -325,7 +325,7 @@ export function getModelSizes(model: string) {
 
 // todo
 export function supportsCustomSize(model: string): boolean {
-  if (model == "gpt-image-1") return true;
+  if (isImageModel(model)) return true;
   return false;
 }
 
