@@ -285,9 +285,9 @@ export function isVisionModel(model: string) {
   if (envVisionModels?.includes(model)) {
     return true;
   }
-  if (openAIImageModels?.includes(model)) {
-    return true;
-  }
+  // if (openAIImageModels?.includes(model)) {
+  //   return true;
+  // }
   return (
     !EXCLUDE_VISION_MODEL_REGEXES.some((regex) => regex.test(model)) &&
     VISION_MODEL_REGEXES.some((regex) => regex.test(model))
@@ -297,15 +297,6 @@ export function isVisionModel(model: string) {
 export function isImageModel(model: string) {
   if (openAIImageModels.includes(model)) return true;
   return false;
-}
-
-export function isOpenAIImageModel(model: string) {
-  // const visionModels = useAccessStore.getState().visionModels;
-  // const envVisionModels = visionModels?.split(",").map((m) => m.trim());
-  // if (envVisionModels?.includes(model)) {
-  //   return true;
-  // }
-  return openAIImageModels.includes(model);
 }
 
 export function getTimeoutMSByModel(model: string) {

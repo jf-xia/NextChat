@@ -20,7 +20,7 @@ import {
   LLMUsage,
   LLMModel,
 } from "../api";
-import { getMessageTextContent, isImageModel, isOpenAIImageModel as _isOpenAIImageModel, isVisionModel } from "@/app/utils";
+import { getMessageTextContent, isImageModel, isVisionModel } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
 import { getClientConfig } from "@/app/config/client";
 import { openAIImageModels } from "@/app/constant";
@@ -101,7 +101,7 @@ export class OpenaiImageApi implements LLMApi {
     };
 
     // only handle openai image models
-    if (!_isOpenAIImageModel(modelConfig.model)) {
+    if (!isImageModel(modelConfig.model)) {
       throw new Error("model is not a valid openai image model");
     }
     const visionModel = isVisionModel(modelConfig.model);

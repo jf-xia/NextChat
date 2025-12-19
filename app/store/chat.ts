@@ -1,7 +1,6 @@
 import {
   getMessageTextContent,
   isImageModel,
-  isOpenAIImageModel,
   safeLocalStorage,
   trimTopic,
 } from "../utils";
@@ -691,7 +690,7 @@ export const useChatStore = createPersistStore(
         const session = targetSession;
         const modelConfig = session.mask.modelConfig;
         // skip summarize when using openai image models (gpt-image)
-        if (isOpenAIImageModel(modelConfig.model)) {
+        if (isImageModel(modelConfig.model)) {
           return;
         }
 
