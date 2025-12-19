@@ -1,3 +1,4 @@
+import { del } from 'idb-keyval';
 "use client";
 import {
   ApiPath,
@@ -9,7 +10,7 @@ import {
 } from "@/app/constant";
 import { useAccessStore, useAppConfig } from "@/app/store";
 import { collectModelsWithDefaultModel } from "@/app/utils/model";
-import { uploadImage, base64Image2Blob } from "@/app/utils/chat";
+import { uploadImage, base64Image2Blob, preProcessImageContent } from "@/app/utils/chat";
 import { cloudflareAIGatewayUrl } from "@/app/utils/cloudflare";
 import {
   ChatOptions,
@@ -19,18 +20,19 @@ import {
   LLMUsage,
   LLMModel,
 } from "../api";
-import { getMessageTextContent, isImageModel, isOpenAIImageModel as _isOpenAIImageModel } from "@/app/utils";
+import { getMessageTextContent, isImageModel, isOpenAIImageModel as _isOpenAIImageModel, isVisionModel } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
 import { getClientConfig } from "@/app/config/client";
 import { openAIImageModels } from "@/app/constant";
 
 export interface ImageRequestPayload {
   model: string;
-  prompt: string;
+  prompt: string | ChatOptions["messages"];
   output_format: "png";
   n: number;
   size: "1024x1024" | "1536x1024" | "1024x1536";
   quality: "low" | "medium" | "high";
+  image?: string; //base64-encoded image string for edit
 }
 
 
@@ -102,8 +104,32 @@ export class OpenaiImageApi implements LLMApi {
     if (!_isOpenAIImageModel(modelConfig.model)) {
       throw new Error("model is not a valid openai image model");
     }
+    const visionModel = isVisionModel(modelConfig.model);
+    const messages: ChatOptions["messages"] = [];
+    for (const v of options.messages) {
+      const content = visionModel ? await preProcessImageContent(v.content) : getMessageTextContent(v);
+      messages.push({ role: v.role, content } as any);
+    }
 
-    const prompt = getMessageTextContent(options.messages.slice(-1)?.pop() as any);
+    // derive prompt from last processed message
+    const last = messages.slice(-1)?.pop() as any;
+    let prompt = "";
+    let imageBase64 = "";
+    if (last) {
+      const c = last.content;
+      if (typeof c === "string") {
+        prompt = c;
+      } else {
+        for (const part of c) {
+          if (part?.type === "text") {
+            prompt = part.text ?? "";
+          }
+          if (part?.type === "image_url") {
+            imageBase64 = part.image_url?.url ?? "";
+          }
+        }
+      }
+    }
 
     let requestPayload: ImageRequestPayload = {
       model: modelConfig.model,
@@ -119,15 +145,35 @@ export class OpenaiImageApi implements LLMApi {
     options.onController?.(controller as any);
 
     try {
-      const chatPath = buildPathFromConfig(modelConfig, modelConfig.providerName === ServiceProvider.Azure);
-      const chatPayload = {
+      const basePath = buildPathFromConfig(modelConfig, modelConfig.providerName === ServiceProvider.Azure);
+      let chatPath = basePath;
+      // if (visionModel) {
+      //   const containsImage = messages.some((m: any) => {
+      //     const c = m.content;
+      //     if (typeof c === "string") return false;
+      //     if (Array.isArray(c)) {
+      //       return c.some((p: any) => p?.type === "image_url" || p?.type === "image" || p?.image);
+      //     }
+      //     return false;
+      //   });
+      //   if (containsImage) {
+      //     chatPath = basePath.replace(OpenaiPath.ImagePath, OpenaiPath.ImageEditPath);
+      //   }
+      // }
+
+      const requestTimeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      if (visionModel && imageBase64) {
+        chatPath = basePath.replace(OpenaiPath.ImagePath, OpenaiPath.ImageEditPath);
+        chatPath = chatPath.replace('openai', 'openaiimages');
+        requestPayload.image = imageBase64;
+      } 
+      let chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
         headers,
       } as any;
-
-      const requestTimeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      console.log("[Request] openai image payload: ", chatPayload);
       const res = await fetch(chatPath, chatPayload);
       clearTimeout(requestTimeoutId);
       const resJson = await res.json();
@@ -219,7 +265,24 @@ export class OpenaiImageApi implements LLMApi {
 
 export async function extractImageMessage(res: any) {
     if (res.error) {
-      return "```\n" + JSON.stringify(res, null, 4) + "\n```";
+      return "```json\n" + JSON.stringify(res, null, 4) + "\n```";
+    }
+    if (res.detail && typeof res.detail === "string") {
+      return "```json\n" + res.detail + "\n```";
+    }
+    if (res.detail && Array.isArray(res.detail)) {
+      const details = res.detail
+        .map((d: any) => {
+          const loc = Array.isArray(d.loc) ? d.loc.join(".") : d.loc ?? "";
+          const msg = d.msg ?? JSON.stringify(d);
+          const type = d.type ? ` [${d.type}]` : "";
+          return `${msg}${loc ? ` (loc: ${loc})` : ""}${type}`;
+        })
+        .join("\n");
+      return "```json\n" + details + "\n```";
+    }
+    if (res.choices?.at(0)?.message?.content) {
+      return res.choices.at(0).message.content;
     }
     // dalle3 model return url, using url create image message
     if (res.data) {
@@ -266,46 +329,6 @@ function buildPathFromConfig(modelConfig: any, useAzure = false) {
     ? Azure.ImagePath(modelConfig.model, accessStore.azureApiVersion)
     : OpenaiPath.ImagePath;
   return cloudflareAIGatewayUrl([baseUrl, path].join("/"));
-}
-
-export async function sendImageRequest(options: ChatOptions) {
-  const modelConfig = {
-    ...useAppConfig.getState().modelConfig,
-    ...options.config,
-  };
-  const prompt = getMessageTextContent(options.messages.slice(-1)?.pop() as any);
-  const requestPayload: ImageRequestPayload = {
-      model: modelConfig.model,
-      prompt,
-      n: 1,
-      output_format: (options.config as any)?.style ?? "png",
-      size: (options.config as any)?.size ?? "1024x1024",
-      quality: (options.config as any)?.quality ?? "low",
-    };
-
-  const headers = await getHeaders();
-  const controller = new AbortController();
-  options.onController?.(controller as any);
-
-  try {
-    const chatPath = buildPathFromConfig(modelConfig, modelConfig.providerName === ServiceProvider.Azure);
-    const chatPayload = {
-      method: "POST",
-      body: JSON.stringify(requestPayload),
-      signal: controller.signal,
-      headers,
-    } as any;
-
-    const requestTimeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-    const res = await fetch(chatPath, chatPayload);
-    clearTimeout(requestTimeoutId);
-    const resJson = await res.json();
-    const message = await extractImageMessage(resJson);
-    options.onFinish(message, res);
-  } catch (e) {
-    console.log("[Request] failed to make a image request", e);
-    options.onError?.(e as Error);
-  }
 }
 
 export { OpenaiPath };

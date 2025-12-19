@@ -6,7 +6,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./auth";
 import { requestOpenai } from "./common";
 
-const ALLOWED_PATH = new Set(Object.values(OpenaiPath));
+// delete OpenaiPath.ImageEditPath;
+const pathValues = Object.values(OpenaiPath).filter(
+  (path) => path !== OpenaiPath.ImageEditPath,
+);
+const ALLOWED_PATH = new Set(pathValues);
 
 function getModels(remoteModelRes: OpenAIListModelResponse) {
   const config = getServerSideConfig();
