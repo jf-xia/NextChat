@@ -167,6 +167,9 @@ export class OpenaiImageApi implements LLMApi {
         chatPath = chatPath.replace('openai', 'openaiimages');
         requestPayload.image = imageBase64;
       } 
+      if (modelConfig.model.startsWith("gemini-2.5-flash-image")) {
+        delete (requestPayload as any).quality;
+      }
       let chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),

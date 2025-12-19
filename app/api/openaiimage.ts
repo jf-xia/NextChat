@@ -82,7 +82,7 @@ export async function handle(
     formData.append("output_format", requestPayload.output_format);
     formData.append("size", requestPayload.size);
     formData.append("quality", requestPayload.quality);
-    // requestPayload.image is string like: data:image/jpeg;base64,/9j/4AAQSk...
+    
     // Convert base64 -> binary in a way that works in Node (Buffer) and fall back to browser APIs.
     const base64Str = (requestPayload.image || "").split(",").pop() || "";
     const mimeMatch = (requestPayload.image || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,/);

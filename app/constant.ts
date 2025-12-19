@@ -547,7 +547,7 @@ const openaiModels = [
 export const openAIImageModels = [
   "gpt-image-1",
   "gpt-image-1-mini",
-  // "gemini-2.5-flash-image",
+  "gemini-2.5-flash-image",
 ];
 
 const googleModels = [
