@@ -314,6 +314,9 @@ export function getTimeoutMSByModel(model: string) {
 }
 
 export function getModelSizes(model: string) {
+  if (model.startsWith("gemini-2.5-flash-image")) {
+    return ["1024x1024", "1792x1024", "1024x1792", "1280x896", "896x1280"];
+  }
   return ["1024x1024", "1024x1536", "1536x1024"];
 }
 

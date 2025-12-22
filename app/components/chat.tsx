@@ -106,6 +106,7 @@ import {
   REQUEST_TIMEOUT_MS,
   ServiceProvider,
   UNFINISHED_INPUT,
+  openAIImageModels,
 } from "../constant";
 import { Avatar } from "./emoji";
 import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
@@ -641,13 +642,28 @@ export function ChatActions(props: {
         {showModelSelector && (
           <Selector
             defaultSelectedValue={`${currentModel}@${currentProviderName}`}
-            items={models.map((m) => ({
-              title: `${m.displayName}${m?.provider?.providerName
-                ? " (" + m?.provider?.providerName + ")"
-                : ""
-                }`,
-              value: `${m.name}@${m?.provider?.providerName}`,
-            }))}
+            items={[
+              { title: "Image Generation", value: "__header_image", disable: true },
+              ...models
+                .filter((m) => openAIImageModels.includes(m.name))
+                .map((m) => ({
+                  title: `${m.displayName}${m?.provider?.providerName
+                    ? " (" + m?.provider?.providerName + ")"
+                    : ""
+                    }`,
+                  value: `${m.name}@${m?.provider?.providerName}`,
+                })),
+              { title: "Text Generation", value: "__header_text", disable: true },
+              ...models
+                .filter((m) => !openAIImageModels.includes(m.name))
+                .map((m) => ({
+                  title: `${m.displayName}${m?.provider?.providerName
+                    ? " (" + m?.provider?.providerName + ")"
+                    : ""
+                    }`,
+                  value: `${m.name}@${m?.provider?.providerName}`,
+                })),
+            ]}
             onClose={() => setShowModelSelector(false)}
             onSelection={(s) => {
               if (s.length === 0) return;
