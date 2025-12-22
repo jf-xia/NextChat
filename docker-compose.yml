@@ -34,11 +34,11 @@ services:
     # command: sh -c "yarn install && yarn run build && yarn run start"
 
   litellm:
-    build:
-      context: .
-      args:
-        target: runtime
-    image: ghcr.io/berriai/litellm:main-stable
+    # build:
+    #   context: .
+    #   args:
+    #     target: runtime
+    image: ghcr.io/berriai/litellm:v1.80.10.rc.5
     restart: unless-stopped
     volumes:
       - ./config.yaml:/app/config.yaml

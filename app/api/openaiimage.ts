@@ -78,10 +78,10 @@ export async function handle(
     const formData = new FormData();  
     formData.append("model", requestPayload.model);
     formData.append("prompt", requestPayload.prompt);
-    formData.append("n", requestPayload.n.toString());
+    // formData.append("n", requestPayload.n.toString());
     formData.append("output_format", requestPayload.output_format);
     formData.append("size", requestPayload.size);
-    formData.append("quality", requestPayload.quality);
+    // formData.append("quality", requestPayload.quality);
     
     // Convert base64 -> binary in a way that works in Node (Buffer) and fall back to browser APIs.
     const base64Str = (requestPayload.image || "").split(",").pop() || "";
