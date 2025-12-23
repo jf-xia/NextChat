@@ -776,7 +776,7 @@ export function ChatActions(props: {
           />
         )}
 
-        {isImageModel(currentModel) && (
+        {(isImageModel(currentModel) && !currentModel.startsWith("gemini-2.5-flash-image")) && (
           <ChatAction
             onClick={() => setShowQualitySelector(true)}
             text={currentQuality}
@@ -803,7 +803,7 @@ export function ChatActions(props: {
           />
         )}
 
-        {isImageModel(currentModel) && (
+        {/* {isImageModel(currentModel) && (
           <ChatAction
             onClick={() => setShowStyleSelector(true)}
             text={currentFormat}
@@ -828,7 +828,7 @@ export function ChatActions(props: {
               showToast(style);
             }}
           />
-        )}
+        )} */}
 
         {/* {showPlugins(currentProviderName, currentModel) && (
           <ChatAction
@@ -1842,47 +1842,49 @@ function _Chat() {
                         <div className={styles["chat-message-container"]}>
                           <div className={styles["chat-message-header"]}>
                             <div className={styles["chat-message-avatar"]}>
-                              <div className={styles["chat-message-edit"]}>
-                                <IconButton
-                                  icon={<EditIcon />}
-                                  aria={Locale.Chat.Actions.Edit}
-                                  onClick={async () => {
-                                    const newMessage = await showPrompt(
-                                      Locale.Chat.Actions.Edit,
-                                      getMessageTextContent(message),
-                                      10,
-                                    );
-                                    let newContent:
-                                      | string
-                                      | MultimodalContent[] = newMessage;
-                                    const images = getMessageImages(message);
-                                    if (images.length > 0) {
-                                      newContent = [
-                                        { type: "text", text: newMessage },
-                                      ];
-                                      for (let i = 0; i < images.length; i++) {
-                                        newContent.push({
-                                          type: "image_url",
-                                          image_url: {
-                                            url: images[i],
-                                          },
-                                        });
-                                      }
-                                    }
-                                    chatStore.updateTargetSession(
-                                      session,
-                                      (session) => {
-                                        const m = session.mask.context
-                                          .concat(session.messages)
-                                          .find((m) => m.id === message.id);
-                                        if (m) {
-                                          m.content = newContent;
+                              {!isImageModel(message.model ?? '') ? (
+                                <div className={styles["chat-message-edit"]}>
+                                  <IconButton
+                                    icon={<EditIcon />}
+                                    aria={Locale.Chat.Actions.Edit}
+                                    onClick={async () => {
+                                      const newMessage = await showPrompt(
+                                        Locale.Chat.Actions.Edit,
+                                        getMessageTextContent(message),
+                                        10,
+                                      );
+                                      let newContent:
+                                        | string
+                                        | MultimodalContent[] = newMessage;
+                                      const images = getMessageImages(message);
+                                      if (images.length > 0) {
+                                        newContent = [
+                                          { type: "text", text: newMessage },
+                                        ];
+                                        for (let i = 0; i < images.length; i++) {
+                                          newContent.push({
+                                            type: "image_url",
+                                            image_url: {
+                                              url: images[i],
+                                            },
+                                          });
                                         }
-                                      },
-                                    );
-                                  }}
-                                ></IconButton>
-                              </div>
+                                      }
+                                      chatStore.updateTargetSession(
+                                        session,
+                                        (session) => {
+                                          const m = session.mask.context
+                                            .concat(session.messages)
+                                            .find((m) => m.id === message.id);
+                                          if (m) {
+                                            m.content = newContent;
+                                          }
+                                        },
+                                      );
+                                    }}
+                                  ></IconButton>
+                                </div>
+                              ) : null}
                               {isUser ? (
                                 <Avatar avatar={config.avatar} />
                               ) : (
@@ -1933,7 +1935,7 @@ function _Chat() {
                                           onDelete(message.id ?? i)
                                         }
                                       />
-
+                                      {/* 
                                       <ChatAction
                                         text={Locale.Chat.Actions.Pin}
                                         icon={<PinIcon />}
@@ -1947,7 +1949,7 @@ function _Chat() {
                                             getMessageTextContent(message),
                                           )
                                         }
-                                      />
+                                      /> */}
                                       {config.ttsConfig.enable && (
                                         <ChatAction
                                           text={
