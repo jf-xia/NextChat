@@ -643,24 +643,18 @@ export function ChatActions(props: {
           <Selector
             defaultSelectedValue={`${currentModel}@${currentProviderName}`}
             items={[
-              { title: "Image Generation", value: "__header_image", disable: true },
+              { title: "Image Generation", value: "", disable: true },
               ...models
                 .filter((m) => openAIImageModels.includes(m.name))
                 .map((m) => ({
-                  title: `${m.displayName}${m?.provider?.providerName
-                    ? " (" + m?.provider?.providerName + ")"
-                    : ""
-                    }`,
+                  title: `${m.displayName}`,
                   value: `${m.name}@${m?.provider?.providerName}`,
                 })),
-              { title: "Text Generation", value: "__header_text", disable: true },
+              { title: "Text Generation", value: "", disable: true },
               ...models
                 .filter((m) => !openAIImageModels.includes(m.name))
                 .map((m) => ({
-                  title: `${m.displayName}${m?.provider?.providerName
-                    ? " (" + m?.provider?.providerName + ")"
-                    : ""
-                    }`,
+                  title: `${m.displayName}`,
                   value: `${m.name}@${m?.provider?.providerName}`,
                 })),
             ]}
@@ -1589,6 +1583,20 @@ function _Chat() {
 
   async function uploadImage() {
     const images: string[] = [];
+
+    // TODO: multi-image upload
+    if (attachImages.length > 0) {
+      alert("You have already attached image. Please remove it first. (Multi-image upload is still in development)");
+      return;
+    }
+
+    // TODO: openAIImageModels check 
+    const currentModel = chatStore.currentSession().mask.modelConfig.model;
+    if (currentModel.startsWith("gpt-image-1")) {
+      alert("Image upload is not stable for gpt-image-1 model, Justin is checking with vendor. I will release it if it becomes stable.");
+      return;
+    }
+
     images.push(...attachImages);
 
     images.push(

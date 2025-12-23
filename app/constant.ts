@@ -135,7 +135,7 @@ export enum ServiceProvider {
   DeepSeek = "DeepSeek",
   SiliconFlow = "SiliconFlow",
   "302.AI" = "302.AI",
-  "HSUHK AzureAI Image" = "HSUHK AzureAI Image",
+  "HSUHK AI Image" = "HSUHK AI Image",
 }
 
 // Google API safety settings, see https://ai.google.dev/gemini-api/docs/safety-settings
@@ -524,14 +524,14 @@ const openaiModels = [
   // "gpt-5-mini",
   // "gpt-5-nano",
   // "gpt-image-1",
-  "gpt-5",
   // "gpt-5-chat-2025-01-01-preview",
-  "gpt-4o",
   // "gpt-4o-2024-05-13",
   // "gpt-4o-2024-08-06",
   // "gpt-4o-2024-11-20",
   // "chatgpt-4o-latest",
   "gpt-4o-mini",
+  "gpt-4o",
+  "gpt-5",
   // "gpt-4o-mini-2024-07-18",
   // "gpt-4-vision-preview",
   // "gpt-4-turbo-2024-04-09",
@@ -775,7 +775,7 @@ export const DEFAULT_MODELS = [
     sorted: seq++, // Global sequence sort(index)
     provider: {
       id: "openai_image",
-      providerName: "HSUHK AzureAI Image",
+      providerName: "HSUHK AI Image",
       providerType: "openaiimages",
       sorted: 6, // 这里是固定的，确保顺序与之前内置的版本一致
     },

@@ -20,7 +20,7 @@ import {
   LLMUsage,
   LLMModel,
 } from "../api";
-import { getMessageTextContent, isImageModel, isVisionModel } from "@/app/utils";
+import { getMessageTextContent, getModelSizes, isImageModel, isVisionModel } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
 import { getClientConfig } from "@/app/config/client";
 import { openAIImageModels } from "@/app/constant";
@@ -131,12 +131,15 @@ export class OpenaiImageApi implements LLMApi {
       }
     }
 
+    const size = getModelSizes(modelConfig.model)
+      .includes((options.config as any)?.size)
+      ? (options.config as any)?.size : "1024x1024";
     let requestPayload: ImageRequestPayload = {
       model: modelConfig.model,
       prompt,
       n: 1,
       output_format: (options.config as any)?.style ?? "png",
-      size: (options.config as any)?.size ?? "1024x1024",
+      size: size,
       quality: (options.config as any)?.quality ?? "low",
     };
 
@@ -145,31 +148,19 @@ export class OpenaiImageApi implements LLMApi {
     options.onController?.(controller as any);
 
     try {
-      const basePath = buildPathFromConfig(modelConfig, modelConfig.providerName === ServiceProvider.Azure);
-      let chatPath = basePath;
-      // if (visionModel) {
-      //   const containsImage = messages.some((m: any) => {
-      //     const c = m.content;
-      //     if (typeof c === "string") return false;
-      //     if (Array.isArray(c)) {
-      //       return c.some((p: any) => p?.type === "image_url" || p?.type === "image" || p?.image);
-      //     }
-      //     return false;
-      //   });
-      //   if (containsImage) {
-      //     chatPath = basePath.replace(OpenaiPath.ImagePath, OpenaiPath.ImageEditPath);
-      //   }
-      // }
-
+      // const basePath = buildPathFromConfig(modelConfig, modelConfig.providerName === ServiceProvider.Azure);
+      let chatPath = ApiPath.OpenAIImage+'/'+OpenaiPath.ImagePath;
+      
       const requestTimeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
       if (visionModel && imageBase64) {
-        chatPath = basePath.replace(OpenaiPath.ImagePath, OpenaiPath.ImageEditPath);
-        chatPath = chatPath.replace('openai', 'openaiimages');
+        chatPath =  ApiPath.OpenAIImage+'/'+OpenaiPath.ImageEditPath;
         requestPayload.image = imageBase64;
       } 
       // TODO
       if (modelConfig.model.startsWith("gemini-2.5-flash-image")) {
         delete (requestPayload as any).quality;
+        delete (requestPayload as any).n;
       }
       let chatPayload = {
         method: "POST",
@@ -259,7 +250,7 @@ export class OpenaiImageApi implements LLMApi {
       sorted: seq++,
       provider: {
         id: "openaiimages",
-        providerName: "HSUHK AzureAI Image",
+        providerName: "HSUHK AI Image",
         providerType: "openaiimages",
         sorted: 1,
       },

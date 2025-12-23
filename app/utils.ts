@@ -285,9 +285,9 @@ export function isVisionModel(model: string) {
   if (envVisionModels?.includes(model)) {
     return true;
   }
-  // if (openAIImageModels?.includes(model)) {
-  //   return true;
-  // }
+  if (openAIImageModels?.includes(model)) {
+    return true;
+  }
   return (
     !EXCLUDE_VISION_MODEL_REGEXES.some((regex) => regex.test(model)) &&
     VISION_MODEL_REGEXES.some((regex) => regex.test(model))
@@ -315,10 +315,14 @@ export function getTimeoutMSByModel(model: string) {
 
 export function getModelSizes(model: string) {
   if (model.startsWith("gemini-2.5-flash-image")) {
-    return ["1024x1024", "1792x1024", "1024x1792", "1280x896", "896x1280"];
+    return GEMINI_IMAGE_SIZES;
   }
-  return ["1024x1024", "1024x1536", "1536x1024"];
+  return OPENAI_IMAGE_SIZES;
 }
+
+export const GEMINI_IMAGE_SIZES = ["1024x1024", "1792x1024", "1024x1792", "1280x896", "896x1280"];
+
+export const OPENAI_IMAGE_SIZES = ["1024x1024", "1024x1536", "1536x1024"];
 
 // todo
 export function supportsCustomSize(model: string): boolean {

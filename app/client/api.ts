@@ -387,7 +387,7 @@ export async function getHeaders(ignoreHeaders: boolean = false) {
 
 export function getClientApi(provider: ServiceProvider): ClientApi {
   switch (provider) {
-    case "HSUHK AzureAI Image":
+    case "HSUHK AI Image":
       return new ClientApi(ModelProvider.OpenaiImage);
     case ServiceProvider.Google:
       return new ClientApi(ModelProvider.GeminiPro);

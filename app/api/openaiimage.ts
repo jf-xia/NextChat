@@ -4,7 +4,7 @@ import { prettyObject } from "@/app/utils/format";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./auth";
 
-const ALLOWED_PATH = new Set([OpenaiPath.ImageEditPath]);
+const ALLOWED_PATH = new Set([OpenaiPath.ImageEditPath,OpenaiPath.ImagePath]);
 const serverConfig = getServerSideConfig();
 
 export async function handle(
@@ -75,48 +75,39 @@ export async function handle(
     const fetchUrl = `${baseUrl}/${path}`;
     
     const requestPayload = await req.json();
-    const formData = new FormData();  
-    formData.append("model", requestPayload.model);
-    formData.append("prompt", requestPayload.prompt);
-    // formData.append("n", requestPayload.n.toString());
-    formData.append("output_format", requestPayload.output_format);
-    formData.append("size", requestPayload.size);
-    // formData.append("quality", requestPayload.quality);
-    
-    // Convert base64 -> binary in a way that works in Node (Buffer) and fall back to browser APIs.
-    const base64Str = (requestPayload.image || "").split(",").pop() || "";
-    const mimeMatch = (requestPayload.image || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,/);
-    const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
-    const filename = "image.jpg";
 
-    try {
-      // Prefer Node Buffer when available (server-side). Buffer.from handles base64 reliably.
-      // @ts-ignore Buffer may not be defined in browser runtimes
-      if (typeof Buffer !== "undefined" && typeof Buffer.from === "function") {
+    let formData: any = JSON.stringify(requestPayload);
+    
+    if (OpenaiPath.ImageEditPath === subpath) {
+      formData = new FormData();  
+      formData.append("model", requestPayload.model);
+      formData.append("prompt", requestPayload.prompt);
+      formData.append("output_format", requestPayload.output_format);
+      formData.append("size", requestPayload.size);
+      if (!requestPayload.model.startsWith("gemini-2.5-flash-image")) {
+        formData.append("n", "1");  // requestPayload.n.toString()
+        formData.append("quality", requestPayload.quality);
+      }
+      // Convert base64 -> binary in a way that works in Node (Buffer) and fall back to browser APIs.
+      const base64Str = (requestPayload.image || "").split(",").pop() || "";
+      const mimeMatch = (requestPayload.image || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,/);
+      const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+      const filename = "image.jpg";
+      try {
+        // Prefer Node Buffer when available (server-side). Buffer.from handles base64 reliably.
         // @ts-ignore
         const buffer = Buffer.from(base64Str, "base64");
         const blob = new Blob([buffer], { type: mimeType });
         // Some FormData implementations (Node/undici) accept a filename as a third arg.
         // @ts-ignore allow appending blob with filename
         formData.append("image", blob, filename);
-      } else {
-        // Browser fallback: use atob + File
-        const byteString = atob(base64Str);
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
-        }
-        const blob = new Blob([ab], { type: mimeType });
-        const file = new File([blob], filename, { type: mimeType });
-        formData.append("image", file);
+      } catch (err) {
+        console.error("[OpenAI Image] image conversion error:", err);
+        // Fallback: append base64 string directly (some APIs accept data URLs)
+        formData.append("image", requestPayload.image);
       }
-    } catch (err) {
-      console.error("[OpenAI Image] image conversion error:", err);
-      // Fallback: append base64 string directly (some APIs accept data URLs)
-      formData.append("image", requestPayload.image);
+      console.log("[Request] openai image reqJson: ", requestPayload);
     }
-    console.log("[Request] openai image reqJson: ", requestPayload);
     const fetchOptions: RequestInit = {
       headers: {
         // "Cache-Control": "no-store",

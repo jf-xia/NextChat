@@ -490,8 +490,8 @@ export function Selector<T>(props: {
     Array.isArray(props.defaultSelectedValue)
       ? props.defaultSelectedValue
       : props.defaultSelectedValue !== undefined
-      ? [props.defaultSelectedValue]
-      : [],
+        ? [props.defaultSelectedValue]
+        : [],
   );
 
   const handleSelection = (e: MouseEvent, value: T) => {
@@ -519,11 +519,12 @@ export function Selector<T>(props: {
               <ListItem
                 className={clsx(styles["selector-item"], {
                   [styles["selector-item-disabled"]]: item.disable,
+                  [styles["selector-item-header"]]: item.value === "",
                 })}
                 key={i}
                 title={item.title}
                 subTitle={item.subTitle}
-                icon={<Avatar model={item.value as string} />}
+                icon={item.value ? (<Avatar model={item.value as string} />) : (<></>)}
                 onClick={(e) => {
                   if (item.disable) {
                     e.stopPropagation();

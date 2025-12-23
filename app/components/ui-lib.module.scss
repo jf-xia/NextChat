@@ -314,6 +314,12 @@
     opacity: 0.6;
   }
 
+  .selector-item-header {
+    font-weight: bolder;
+    opacity: 1 !important;
+    background-color: var(--second) !important;
+  }
+
   &-content {
     min-width: 300px;
     .list {

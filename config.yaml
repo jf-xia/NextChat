@@ -133,7 +133,7 @@ litellm_settings:
   callbacks:
     - prometheus
   prometheus_initialize_budget_metrics: true
-  require_auth_for_metrics_endpoint: true
+  # require_auth_for_metrics_endpoint: true
   prometheus_metrics_config:
     # High-cardinality metrics with minimal labels
     - group: "proxy_metrics"
