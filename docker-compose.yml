@@ -1,21 +1,23 @@
 services:
-  # nginx:
-  #   image: "nginx:latest"
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-  #     - ./docker/nginx/ssl/certs:/etc/ssl/certs
-  #     - ./docker/nginx/ssl/private:/etc/ssl/private
-  #   depends_on:
-  #     - chatweb
-  #     - litellm
-  #   networks:
-  #     - app-tier
-  #   restart: unless-stopped
+  nginx:
+    image: "nginx:latest"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl/certs:/etc/ssl/certs
+      - ./docker/nginx/ssl/private:/etc/ssl/private
+    depends_on:
+      - chatweb
+      - litellm
+    networks:
+      - app-tier
+    restart: unless-stopped
 
   chatweb:
     container_name: chatweb
+    hostname: chatweb
     build:
       context: .
       args:
@@ -23,11 +25,13 @@ services:
     working_dir: /app
     env_file:
       - .env
+    environment:
+      - HOST=0.0.0.0
     # volumes:
     #   - ./:/app:delegated
     #   - /app/node_modules
     ports:
-      - "80:3000"
+      - "3000:3000"
     restart: unless-stopped
     networks:
       - app-tier
@@ -80,7 +84,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./docker/postgres_data:/var/lib/postgresql/data # Persists Postgres data across container restarts
+      - ./docker/postgres_data/:/var/lib/postgresql/data/ # Persists Postgres data across container restarts
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
       interval: 1s
@@ -90,7 +94,7 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-      - ./docker/prometheus_data:/prometheus/
+      - prometheus_data:/prometheus/
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
@@ -104,3 +108,7 @@ services:
 networks:
   app-tier:
     driver: bridge
+
+volumes:
+  prometheus_data:
+    driver: local
