@@ -1,5 +1,7 @@
 services:
   nginx:
+    container_name: nginx
+    hostname: nginx
     image: "nginx:latest"
     ports:
       - "80:80"
@@ -38,6 +40,8 @@ services:
     # command: sh -c "yarn install && yarn run build && yarn run start"
 
   litellm:
+    container_name: litellm
+    hostname: litellm
     # build:
     #   context: .
     #   args:
@@ -72,9 +76,10 @@ services:
       start_period: 40s # Wait 40 seconds after container start before beginning health checks
 
   db:
+    container_name: litellm_db
+    hostname: litellm_db
     image: postgres:16
     restart: unless-stopped
-    container_name: litellm_db
     networks:
       - app-tier
     environment:
@@ -92,6 +97,8 @@ services:
       retries: 10
 
   prometheus:
+    container_name: prometheus
+    hostname: prometheus
     image: prom/prometheus
     volumes:
       - prometheus_data:/prometheus/
