@@ -1584,20 +1584,16 @@ function _Chat() {
   async function uploadImage() {
     const images: string[] = [];
 
-    // TODO: multi-image upload
-    if (attachImages.length > 0) {
-      alert("You have already attached image. Please remove it first. (Multi-image upload is still in development)");
-      return;
-    }
-
     // TODO: openAIImageModels check 
     const currentModel = chatStore.currentSession().mask.modelConfig.model;
     if (currentModel.startsWith("gpt-image-1")) {
-      alert("Image upload is not stable for gpt-image-1 model, Justin is checking with vendor. I will release it if it becomes stable.");
+      alert("Image upload is not stable for gpt-image-1 model, nss is checking with vendor. I will release it if it becomes stable.");
       return;
     }
 
-    images.push(...attachImages);
+    if (!openAIImageModels.includes(currentModel)) {
+      images.push(...attachImages);
+    }
 
     images.push(
       ...(await new Promise<string[]>((res, rej) => {
