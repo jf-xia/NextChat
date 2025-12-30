@@ -25,3 +25,4 @@ src-tauri
 test
 docs
 *.md
+.env.development
