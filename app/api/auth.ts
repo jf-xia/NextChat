@@ -203,8 +203,8 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
     }
     // console.log(`[Auth] User: ${username}, LLM Key: ${llmKey}, Spend: ${llmData.spend}, data: ${JSON.stringify(llmData)}`);
     req.headers.set("Authorization", `Bearer ${llmKey}`);
-    req.headers.set("spend", llmData.spend);
-    req.headers.set("budget", llmData.max_budget);
+    req.headers.set("spend", llmData?.spend ?? 0);
+    req.headers.set("budget", llmData?.max_budget ?? 1);
   } catch (e: any) {
     console.error("[Auth] Azure AD validation failed", e);
     if (e.name === "TokenExpiredError") {
@@ -213,7 +213,6 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
         msg: "Token expired",
       };
     }
-    // TODO: more detailed error handling
     return {
       error: true,
       msg: "Invalid Login Auth token",
