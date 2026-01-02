@@ -259,23 +259,23 @@ export class OpenaiImageApi implements LLMApi {
 }
 
 export async function extractImageMessage(res: any) {
-    if (res.error) {
-      return "```json\n" + JSON.stringify(res, null, 4) + "\n```";
-    }
-    if (res.detail && typeof res.detail === "string") {
-      return "```json\n" + res.detail + "\n```";
-    }
-    if (res.detail && Array.isArray(res.detail)) {
-      const details = res.detail
-        .map((d: any) => {
-          const loc = Array.isArray(d.loc) ? d.loc.join(".") : d.loc ?? "";
-          const msg = d.msg ?? JSON.stringify(d);
-          const type = d.type ? ` [${d.type}]` : "";
-          return `${msg}${loc ? ` (loc: ${loc})` : ""}${type}`;
-        })
-        .join("\n");
-      return "```json\n" + details + "\n```";
-    }
+    // if (res.error) {
+    //   return "```json\n" + JSON.stringify(res, null, 4) + "\n```";
+    // }
+    // if (res.detail && typeof res.detail === "string") {
+    //   return "```json\n" + res.detail + "\n```";
+    // }
+    // if (res.detail && Array.isArray(res.detail)) {
+    //   const details = res.detail
+    //     .map((d: any) => {
+    //       const loc = Array.isArray(d.loc) ? d.loc.join(".") : d.loc ?? "";
+    //       const msg = d.msg ?? JSON.stringify(d);
+    //       const type = d.type ? ` [${d.type}]` : "";
+    //       return `${msg}${loc ? ` (loc: ${loc})` : ""}${type}`;
+    //     })
+    //     .join("\n");
+    //   return "```json\n" + details + "\n```";
+    // }
     if (res.choices?.at(0)?.message?.content) {
       return res.choices.at(0).message.content;
     }
@@ -295,7 +295,8 @@ export async function extractImageMessage(res: any) {
         },
       ];
     }
-    return res.choices?.at(0)?.message?.content ?? res;
+    // return res.choices?.at(0)?.message?.content ?? res;
+    return typeof res === "string" ? res : JSON.stringify(res);
   }
 
 

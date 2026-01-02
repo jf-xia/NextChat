@@ -459,6 +459,9 @@ export const useChatStore = createPersistStore(
         
         const api: ClientApi = getClientApi(modelConfig.providerName);
         // make request
+        console.log(
+          `[Chat Request START] session=${session.id} messageIndex=${messageIndex} model=${modelConfig.model} provider=${modelConfig.providerName} messages=${sendMessages.length}`,
+        );
         api.llm.chat({
           messages: sendMessages,
           config: { ...modelConfig, stream: true },
@@ -467,13 +470,19 @@ export const useChatStore = createPersistStore(
             if (message) {
               botMessage.content = message;
             }
+            console.log(
+              `[Chat Update] session=${session.id} botMessage=${botMessage.id} updateLen=${message?.length ?? 0}`,
+            );
             get().updateTargetSession(session, (session) => {
               session.messages = session.messages.concat();
             });
           },
           async onFinish(message, responseRes) {
-            const spend = responseRes?.headers?.get("spend");
-            const budget = responseRes?.headers?.get("budget") ?? "1";
+            console.log(
+              `[Chat Finish] session=${session.id} botMessage=${botMessage.id} status=${responseRes?.status} responseSpend=${responseRes?.headers?.get("spend")}`,
+            );
+            const spend = responseRes?.headers?.get("spend") ?? 0;
+            const budget = responseRes?.headers?.get("budget") ?? 1;
             console.log(
               `[Usage] spend from response headers: ${spend}, budget: ${budget}`,
             );
@@ -497,6 +506,20 @@ export const useChatStore = createPersistStore(
             }
             botMessage.streaming = false;
             if (message) {
+              console.log(
+                `[Chat Message Received] session=${session.id} botMessage=${botMessage.id} messageLen=${message.length}`,
+              );
+              if (responseRes?.status !== 200 && typeof message === "string") {
+                console.log('[Chat] non-200 response ', responseRes?.status, message);
+                try {
+                  const obj = JSON.parse(message);
+                  console.log('[Chat] parsed error message ', obj);
+                  message = prettyObject(obj);
+                } catch (e) {
+                  console.error('[Chat] failed to parse error message', message, e);
+                }
+
+              }
               botMessage.content = message;
               botMessage.date = new Date().toLocaleString();
               get().onNewMessage(botMessage, session);
@@ -504,12 +527,18 @@ export const useChatStore = createPersistStore(
             ChatControllerPool.remove(session.id, botMessage.id);
           },
           onBeforeTool(tool: ChatMessageTool) {
+            console.log(
+              `[Chat Tool Before] session=${session.id} botMessage=${botMessage.id} toolId=${tool.id} type=${tool.type}`,
+            );
             (botMessage.tools = botMessage?.tools || []).push(tool);
             get().updateTargetSession(session, (session) => {
               session.messages = session.messages.concat();
             });
           },
           onAfterTool(tool: ChatMessageTool) {
+            console.log(
+              `[Chat Tool After] session=${session.id} botMessage=${botMessage.id} toolId=${tool.id}`,
+            );
             botMessage?.tools?.forEach((t, i, tools) => {
               if (tool.id == t.id) {
                 tools[i] = { ...tool };
@@ -520,6 +549,9 @@ export const useChatStore = createPersistStore(
             });
           },
           onError(error) {
+            console.log(
+              `[Chat Error] session=${session.id} botMessage=${botMessage.id} message=${error?.message}`,
+            );
             const isAborted = error.message?.includes?.("aborted");
             botMessage.content +=
               "\n\n" +
@@ -542,6 +574,9 @@ export const useChatStore = createPersistStore(
           },
           onController(controller) {
             // collect controller for stop/retry
+            console.log(
+              `[Chat Controller] session=${session.id} botMessage=${botMessage.id} controllerCollected=true`,
+            );
             ChatControllerPool.addController(
               session.id,
               botMessage.id ?? messageIndex,
@@ -729,6 +764,9 @@ export const useChatStore = createPersistStore(
                 content: Locale.Store.Prompt.Topic,
               }),
             );
+          console.log(
+            `[Topic Request START] session=${session.id} model=${model} provider=${providerName} messages=${topicMessages.length}`,
+          );
           api.llm.chat({
             messages: topicMessages,
             config: {
@@ -737,6 +775,9 @@ export const useChatStore = createPersistStore(
               providerName,
             },
             onFinish(message, responseRes) {
+              console.log(
+                `[Topic Request Finish] session=${session.id} status=${responseRes?.status} topicLen=${message?.length ?? 0}`,
+              );
               if (responseRes?.status === 200) {
                 get().updateTargetSession(
                   session,
@@ -787,6 +828,9 @@ export const useChatStore = createPersistStore(
            * this param is just shit
            **/
           const { max_tokens, ...modelcfg } = modelConfig;
+          console.log(
+            `[Summarize Request START] session=${session.id} msgs=${toBeSummarizedMsgs.length} model=${model} provider=${providerName}`,
+          );
           api.llm.chat({
             messages: toBeSummarizedMsgs.concat(
               createMessage({
@@ -803,8 +847,14 @@ export const useChatStore = createPersistStore(
             },
             onUpdate(message) {
               session.memoryPrompt = message;
+              console.log(
+                `[Summarize Update] session=${session.id} memoryPromptLen=${message?.length ?? 0}`,
+              );
             },
             onFinish(message, responseRes) {
+              console.log(
+                `[Summarize Finish] session=${session.id} status=${responseRes?.status} memoryLen=${message?.length ?? 0}`,
+              );
               if (responseRes?.status === 200) {
                 console.log("[Memory] ", message);
                 get().updateTargetSession(session, (session) => {
@@ -815,6 +865,7 @@ export const useChatStore = createPersistStore(
             },
             onError(err) {
               console.error("[Summarize] ", err);
+              console.log(`[Summarize Error] session=${session.id} message=${err?.message}`);
             },
           });
         }

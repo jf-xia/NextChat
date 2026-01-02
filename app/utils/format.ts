@@ -1,14 +1,31 @@
 export function prettyObject(msg: any) {
   if (msg?.error) {
-    const errorMessage = msg?.error?.message ?? msg.Store.Error;
+    // Support multiple shapes:
+    // - { error: { message: string, type?: string } }
+    // - { error: true, msg: "..." }
+    // - { error: true, message: "..." }
+    // - { error: "some string" }
+    const errorFromErrorObj =
+      msg?.error && typeof msg.error !== "boolean" && typeof msg.error !== "string"
+        ? msg.error.message
+        : typeof msg.error === "string"
+        ? msg.error
+        : undefined;
+
+    const errorMessage =
+      errorFromErrorObj ?? msg?.msg ?? msg?.message ?? JSON.stringify(msg);
+
     const sanitizedMessage =
       typeof errorMessage === "string"
         ? errorMessage.replace(/litellm/g, "Error")
-        : errorMessage;
-    return sanitizedMessage +
-      "\n\n (chat_ai_error_msg: " +
-      (msg?.error?.type ?? "Unknown") +
-      ")";
+        : JSON.stringify(errorMessage);
+
+    const errorType =
+      (msg?.error && typeof msg.error !== "boolean" ? msg.error.type : undefined) ??
+      (msg?.error && typeof msg.error === "string" ? "StringError" : undefined) ??
+      "Unknown";
+
+    return sanitizedMessage + "\n\n (chat_ai_error_msg: " + errorType + ")";
   }
   const obj = msg;
   if (typeof msg !== "string") {
