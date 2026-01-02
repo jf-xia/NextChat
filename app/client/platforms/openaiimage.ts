@@ -283,12 +283,12 @@ export async function extractImageMessage(res: any) {
     // dalle3 model return url, using url create image message
     if (res.data) {
       let url = res.data?.at(0)?.url ?? "";
-      if (url == "") {
-        return "The image generation resulted in an empty image. Please adjust your prompt and try again.";
-      }
       const b64_json = res.data?.at(0)?.b64_json ?? "";
       if (!url && b64_json) {
         url = await uploadImage(base64Image2Blob(b64_json, "image/png"));
+      }
+      if (url == "") {
+        return "The image generation resulted in an empty image. Please adjust your prompt and try again.";
       }
       return [
         {
