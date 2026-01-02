@@ -168,7 +168,7 @@ export class OpenaiImageApi implements LLMApi {
         signal: controller.signal,
         headers,
       } as any;
-      console.log("[Request] openai image payload: ", chatPayload);
+      // console.log("[Request] openai image payload: ", chatPayload);
       const res = await fetch(chatPath, chatPayload);
       clearTimeout(requestTimeoutId);
       const resJson = await res.json();

@@ -213,9 +213,10 @@ export async function auth(req: NextRequest, modelProvider: ModelProvider) {
         msg: "Token expired",
       };
     }
+    // TODO: more detailed error handling
     return {
       error: true,
-      msg: "Invalid Azure AD token",
+      msg: "Invalid Login Auth token",
     };
   }
 

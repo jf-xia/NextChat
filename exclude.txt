@@ -26,3 +26,4 @@ test
 docs
 *.md
 .env.development
+.env

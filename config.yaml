@@ -1,6 +1,6 @@
 general_settings:
   store_model_in_db: True
-  store_prompts_in_spend_logs: False
+  store_prompts_in_spend_logs: True
 
 model_list:
   - model_name: DeepSeek-R1
@@ -111,6 +111,8 @@ model_list:
       vertex_ai_credentials: os.environ/GOOGLE_APPLICATION_CREDENTIALS
 
 litellm_settings:
+  json_logs: true # JSON 格式日誌
+  turn_off_message_logging: false # 保留消息內容用於調試
   # "HARM_BLOCK_THRESHOLD_UNSPECIFIED", "BLOCK_LOW_AND_ABOVE", "BLOCK_MEDIUM_AND_ABOVE", "BLOCK_ONLY_HIGH", "BLOCK_NONE",
   vertex_ai_safety_settings:
     - category: HARM_CATEGORY_HARASSMENT

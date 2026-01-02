@@ -1,4 +1,15 @@
 export function prettyObject(msg: any) {
+  if (msg?.error) {
+    const errorMessage = msg?.error?.message ?? msg.Store.Error;
+    const sanitizedMessage =
+      typeof errorMessage === "string"
+        ? errorMessage.replace(/litellm/g, "Error")
+        : errorMessage;
+    return sanitizedMessage +
+      "\n\n (chat_ai_error_msg: " +
+      (msg?.error?.type ?? "Unknown") +
+      ")";
+  }
   const obj = msg;
   if (typeof msg !== "string") {
     msg = JSON.stringify(msg, null, "  ");
@@ -6,6 +17,7 @@ export function prettyObject(msg: any) {
   if (msg === "{}") {
     return obj.toString();
   }
+
   if (msg.startsWith("```json")) {
     return msg;
   }

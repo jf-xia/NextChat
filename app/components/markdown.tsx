@@ -269,7 +269,7 @@ function tryWrapHtmlCode(text: string) {
 
 function _MarkDownContent(props: { content: string }) {
   const isError = useMemo(() => {
-    return props.content.includes("hsu_ai_error_msg");
+    return props.content.includes("(chat_ai_error_msg:");
   }, [props.content]);
 
   const escapedContent = useMemo(() => {
