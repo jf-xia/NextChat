@@ -135,10 +135,19 @@ export function setLocalAppState(appState: AppState) {
 }
 
 export function mergeAppState(localState: AppState, remoteState: AppState) {
+  if (!remoteState) {
+    // no remote state to merge
+    return localState;
+  }
+
   Object.keys(localState).forEach(<T extends keyof AppState>(k: string) => {
     const key = k as T;
     const localStoreState = localState[key];
     const remoteStoreState = remoteState[key];
+    if (!remoteStoreState) {
+      // skip missing remote store state
+      return;
+    }
     MergeStates[key](localStoreState, remoteStoreState);
   });
 
@@ -153,7 +162,7 @@ export function mergeWithUpdate<T extends { lastUpdateTime?: number }>(
   remoteState: T,
 ) {
   const localUpdateTime = localState.lastUpdateTime ?? 0;
-  const remoteUpdateTime = localState.lastUpdateTime ?? 1;
+  const remoteUpdateTime = remoteState.lastUpdateTime ?? 1;
 
   if (localUpdateTime < remoteUpdateTime) {
     merge(remoteState, localState);

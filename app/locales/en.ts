@@ -214,7 +214,7 @@ const en: LocaleType = {
       SubTitle: "Generate a suitable title based on the conversation content",
     },
     Sync: {
-      CloudState: "Last Update",
+      CloudState: "Last Manual Sync",
       NotSyncYet: "Not sync yet",
       Success: "Sync Success",
       Fail: "Sync Fail",

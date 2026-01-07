@@ -512,17 +512,16 @@ function SyncItems() {
   return (
     <>
       <List>
-        {/* <ListItem
+        <ListItem
           title={Locale.Settings.Sync.CloudState}
           subTitle={
-            syncStore.lastProvider
-              ? `${new Date(syncStore.lastSyncTime).toLocaleString()} [${syncStore.lastProvider
-              }]`
+            syncStore.lastSyncTime
+              ? `${new Date(syncStore.lastSyncTime).toLocaleString()}`
               : Locale.Settings.Sync.NotSyncYet
           }
         >
           <div style={{ display: "flex" }}>
-            <IconButton
+            {/* <IconButton
               aria={Locale.Settings.Sync.CloudState + Locale.UI.Config}
               icon={<ConfigIcon />}
               text={Locale.UI.Config}
@@ -530,25 +529,25 @@ function SyncItems() {
                 setShowSyncConfigModal(true);
               }}
             />
-            {couldSync && (
-              <IconButton
-                icon={<ResetIcon />}
-                text={Locale.UI.Sync}
-                onClick={async () => {
-                  try {
-                    await syncStore.sync();
-                    showToast(Locale.Settings.Sync.Success);
-                  } catch (e) {
-                    showToast(Locale.Settings.Sync.Fail);
-                    console.error("[Sync]", e);
-                  }
-                }}
-              />
-            )}
+            {couldSync && ( */}
+            <IconButton
+              icon={<ResetIcon />}
+              text={Locale.UI.Sync}
+              onClick={async () => {
+                try {
+                  await syncStore.syncApi();
+                  showToast(Locale.Settings.Sync.Success);
+                } catch (e) {
+                  showToast(Locale.Settings.Sync.Fail);
+                  console.error("[Sync]", e);
+                }
+              }}
+            />
+            {/* )} */}
           </div>
-        </ListItem> */}
+        </ListItem>
 
-        <ListItem
+        {/* <ListItem
           title={Locale.Settings.Sync.LocalState}
           subTitle={Locale.Settings.Sync.Overview(stateOverview)}
         >
@@ -570,7 +569,7 @@ function SyncItems() {
               }}
             />
           </div>
-        </ListItem>
+        </ListItem> */}
       </List>
 
       {showSyncConfigModal && (
@@ -1602,7 +1601,7 @@ export function Settings() {
             </Select>
           </ListItem>
 
-          <ListItem title={Locale.Settings.Theme}>
+          {/* <ListItem title={Locale.Settings.Theme}>
             <Select
               aria-label={Locale.Settings.Theme}
               value={config.theme}
@@ -1634,9 +1633,9 @@ export function Settings() {
                 </option>
               ))}
             </Select>
-          </ListItem>
+          </ListItem> */}
 
-          <ListItem
+          {/* <ListItem
             title={Locale.Settings.FontSize.Title}
             subTitle={Locale.Settings.FontSize.SubTitle}
           >
@@ -1671,7 +1670,7 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem>
+          </ListItem> */}
 
           <ListItem
             title={Locale.Settings.AutoGenerateTitle.Title}
@@ -1690,7 +1689,7 @@ export function Settings() {
             ></input>
           </ListItem>
 
-          <ListItem
+          {/* <ListItem
             title={Locale.Settings.SendPreviewBubble.Title}
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
           >
@@ -1738,12 +1737,12 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem>
+          </ListItem> */}
         </List>
 
         <SyncItems />
 
-        <List>
+        {/* <List>
           <ListItem
             title={Locale.Settings.Mask.Splash.Title}
             subTitle={Locale.Settings.Mask.Splash.SubTitle}
@@ -1778,7 +1777,7 @@ export function Settings() {
               }
             ></input>
           </ListItem>
-        </List>
+        </List> */}
 
         {/* <List>
           <ListItem
@@ -1914,7 +1913,7 @@ export function Settings() {
           </ListItem>
         </List> */}
 
-        <List>
+        {/* <List>
           <ModelConfigList
             modelConfig={config.modelConfig}
             updateConfig={(updater) => {
@@ -1923,11 +1922,11 @@ export function Settings() {
               config.update((config) => (config.modelConfig = modelConfig));
             }}
           />
-        </List>
+        </List> */}
 
-        {shouldShowPromptModal && (
+        {/* {shouldShowPromptModal && (
           <UserPromptModal onClose={() => setShowPromptModal(false)} />
-        )}
+        )} */}
         {/* <List>
           <RealtimeConfigList
             realtimeConfig={config.realtimeConfig}

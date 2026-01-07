@@ -1,4 +1,6 @@
 export function merge(target: any, source: any) {
+  if (!source || typeof source !== "object") return;
+
   Object.keys(source).forEach(function (key) {
     if (
       source.hasOwnProperty(key) && // Check if the property is not inherited
@@ -10,4 +12,4 @@ export function merge(target: any, source: any) {
     }
     target[key] = source[key];
   });
-} 
+}

@@ -119,6 +119,24 @@ export const useSyncStore = createPersistStore(
       this.markSyncTime();
     },
 
+    async syncApi() {
+      const localState = getLocalAppState();
+
+      try {
+        // {"chat-next-web-store": {"sessions": ,"currentSessionIndex": 0,"lastInput": "阿斯蒂芬規劃局可,","lastUpdateTime": 0,"_hasHydrated": true}}
+        const dataJsonStr = '{"chat-next-web-store": {"sessions": [{"id":"'+Date()+'","topic":"'+Date()+'","memoryPrompt":"","messages":[{"id":1753336668331,"date":"24\\/07\\/2025, 13:57:48","role":"user","content":"Hello, this is a test message."},{"id":751174,"date":"24\\/07\\/2025, 13:57:48","role":"assistant","content":"Hello! Your message has been received. How can I assist you today?","streaming":false}],"stat":{"tokenCount":0,"wordCount":0,"charCount":0},"lastUpdate":"2025-07-24T05:57:53.000000Z","lastSummarizeIndex":0,"clearContextIndex":0}]}}';
+        const parsedRemoteState = JSON.parse(dataJsonStr) as AppState;
+        mergeAppState(localState, parsedRemoteState);
+        setLocalAppState(localState);
+      } catch (e) {
+        console.log("[Sync] failed to get remote state", e);
+        throw e;
+      }
+
+      // await client.set(config.username, JSON.stringify(localState));
+      this.markSyncTime();
+    },
+
     async check() {
       const client = this.getClient();
       return await client.check();
