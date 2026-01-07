@@ -1,0 +1,44 @@
+// MySQL/MariaDB schema for reading sessions
+// Uses AI_MYSQL_URL to avoid clashing with existing DATABASE_URL
+
+datasource db {
+  provider = "mysql"
+  url      = env("AI_MYSQL_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AiUser {
+  id       BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  email    String     @db.VarChar(150)
+
+  sessions AiSession[]
+
+  @@index([email])
+  @@map("ai_users")
+}
+
+model AiSession {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  topic              String    @db.VarChar(255)
+  memoryPrompt       String    @map("memory_prompt") @db.VarChar(255)
+  messages           String    @db.LongText
+  tokenCount         Int       @map("token_count")
+  wordCount          Int       @map("word_count")
+  charCount          Int       @map("char_count")
+  lastSummarizeIndex Int       @map("last_summarize_index")
+  clearContextIndex  Int       @map("clear_context_index")
+
+  lastUpdate DateTime? @map("updated_at")
+  createdAt  DateTime? @map("created_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  userId BigInt @map("user_id") @db.UnsignedBigInt
+  user   AiUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([lastUpdate])
+  @@map("ai_sessions")
+}
