@@ -12,6 +12,7 @@ import { getCSSVar, useMobileScreen } from "../utils";
 
 import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
+import { USAGE_TERMS_ACCEPTED_VERSION_KEY } from "../constant";
 import { ErrorBoundary } from "./error";
 
 import { getISOLang, getLang } from "../locales";
@@ -33,6 +34,7 @@ import clsx from "clsx";
 import { initializeMcpSystem, isMcpEnabled } from "../mcp/actions";
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
+import { safeLocalStorage } from "../utils";
 // import { MsalRootProvider } from "../auth/MsalRootProvider";
 
 export function Loading(props: { noLogo?: boolean }) {
@@ -249,11 +251,23 @@ export function Home() {
   const { accounts, inProgress } = useMsal();
   const isAuthenticated = accounts.length > 0;
   const hasHydrated = useHasHydrated();
+  const [hasAgreedUsageTerms, setHasAgreedUsageTerms] = useState(false);
+  const [usageTermsChecked, setUsageTermsChecked] = useState(false);
   const isMsalInitializing =
     inProgress === InteractionStatus.Startup ||
     inProgress === InteractionStatus.HandleRedirect;
   useLoadData(isAuthenticated);
   useHtmlLang();
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    const localStorage = safeLocalStorage();
+    const termsVersion = (process.env.NEXT_PUBLIC_USAGE_TERMS_VERSION ?? "0").trim();
+    const agreed =
+      localStorage.getItem(USAGE_TERMS_ACCEPTED_VERSION_KEY) === termsVersion;
+    setHasAgreedUsageTerms(agreed);
+    setUsageTermsChecked(true);
+  }, [hasHydrated]);
 
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
@@ -274,13 +288,24 @@ export function Home() {
     initMcp();
   }, []);
 
-  if (!hasHydrated || isMsalInitializing) {
+  if (!hasHydrated || isMsalInitializing || !usageTermsChecked) {
     return <Loading />;
   }
 
+  const shouldShowAuthPage = !isAuthenticated || !hasAgreedUsageTerms;
+
   return (
     <ErrorBoundary>
-      <Router>{isAuthenticated ? <Screen /> : <AuthPage />}</Router>
+      <Router>
+        {shouldShowAuthPage ? (
+          <AuthPage
+            isAuthenticated={isAuthenticated}
+            onAgreementChange={setHasAgreedUsageTerms}
+          />
+        ) : (
+          <Screen />
+        )}
+      </Router>
     </ErrorBoundary>
   );
 }

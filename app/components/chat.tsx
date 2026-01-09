@@ -1587,12 +1587,7 @@ function _Chat() {
   async function uploadImage() {
     const images: string[] = [];
 
-    // TODO: openAIImageModels check 
     const currentModel = chatStore.currentSession().mask.modelConfig.model;
-    if (currentModel.startsWith("gpt-image-1")) {
-      alert("Image upload is not stable for gpt-image-1 model, nss is checking with vendor. I will release it if it becomes stable.");
-      return;
-    }
 
     if (!openAIImageModels.includes(currentModel)) {
       images.push(...attachImages);

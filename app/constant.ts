@@ -113,6 +113,10 @@ export const UNFINISHED_INPUT = (id: string) => "unfinished-input-" + id;
 
 export const STORAGE_KEY = "chatgpt-next-web";
 
+// Usage terms agreement version stored in localStorage.
+// When NEXT_PUBLIC_USAGE_TERMS_VERSION changes, users need to re-agree.
+export const USAGE_TERMS_ACCEPTED_VERSION_KEY = `${STORAGE_KEY}-usage-terms-version`;
+
 export const REQUEST_TIMEOUT_MS = 600000;
 export const REQUEST_TIMEOUT_MS_FOR_THINKING = REQUEST_TIMEOUT_MS * 5;
 

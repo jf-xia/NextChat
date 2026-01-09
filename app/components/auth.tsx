@@ -4,15 +4,25 @@ import styles from "./auth.module.scss";
 import { useState, useEffect, ChangeEvent } from "react";
 import Image from "next/image";
 import { useNavigate } from "react-router-dom";
-import { Path } from "../constant";
+import { Path, USAGE_TERMS_ACCEPTED_VERSION_KEY } from "../constant";
 import { getClientConfig } from "../config/client";
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
-import { loginRequest, msalConfig } from "../auth/authConfig";
+import { loginRequest } from "../auth/authConfig";
+import { useSyncStore } from "../store/sync";
+import { safeLocalStorage } from "../utils";
 
-export function AuthPage() {
+type AuthPageProps = {
+  isAuthenticated?: boolean;
+  onAgreementChange?: (hasAgreed: boolean) => void;
+};
+
+export function AuthPage(props: AuthPageProps) {
   const navigate = useNavigate();
   const { instance, inProgress } = useMsal();
+
+  const localStorage = safeLocalStorage();
+  const termsVersion = (process.env.NEXT_PUBLIC_USAGE_TERMS_VERSION ?? "0").trim();
 
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -53,8 +63,17 @@ export function AuthPage() {
   ]);
   const logoUrl = process.env.NEXT_PUBLIC_APP_LOGO_URL ?? "";
 
+  const persistAgreement = (agreed: boolean) => {
+    if (agreed) {
+      localStorage.setItem(USAGE_TERMS_ACCEPTED_VERSION_KEY, termsVersion);
+    } else {
+      localStorage.removeItem(USAGE_TERMS_ACCEPTED_VERSION_KEY);
+    }
+    props.onAgreementChange?.(agreed);
+  };
+
   const handleAgreementChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setHasAgreed(event.target.checked);
+    setHasAgreed(true);
   };
 
   const handleLogin = async () => {
@@ -65,6 +84,14 @@ export function AuthPage() {
       if (response?.account) {
         instance.setActiveAccount(response.account);
       }
+
+      try {
+        await useSyncStore.getState().syncApi();
+      } catch (e) {
+        console.error("[Auth] syncApi failed", e);
+      }
+      persistAgreement(true);
+
       navigate(Path.Home);
     } catch (error) {
       const message =
@@ -78,11 +105,36 @@ export function AuthPage() {
   };
 
   useEffect(() => {
+    // Initialize agreement state from localStorage.
+    const agreed =
+      localStorage.getItem(USAGE_TERMS_ACCEPTED_VERSION_KEY) === termsVersion;
+    setHasAgreed(agreed);
+    props.onAgreementChange?.(agreed);
+
     if (getClientConfig()?.isApp) {
       navigate(Path.Settings);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handlePrimaryAction = async () => {
+    setLoginError(null);
+    if (!hasAgreed) return;
+
+    try {
+      await useSyncStore.getState().syncApi();
+    } catch (e) {
+      console.error("[Auth] syncApi failed", e);
+    }
+    persistAgreement(true);
+
+    if (props.isAuthenticated) {
+      navigate(Path.Home);
+      return;
+    }
+
+    await handleLogin();
+  };
 
   return (
     <div className={styles["auth-page"]}>
@@ -148,10 +200,10 @@ export function AuthPage() {
           <button
             type="button"
             className={styles["sign-in"]}
-            onClick={handleLogin}
+            onClick={handlePrimaryAction}
             disabled={shouldDisableSignIn}
           >
-            Sign in
+            {props.isAuthenticated ? "Continue" : "Sign in"}
           </button>
         </section>
       </main>

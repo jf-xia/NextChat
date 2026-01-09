@@ -509,6 +509,7 @@ function SyncItems() {
     };
   }, [chatStore.sessions, maskStore.masks, promptStore.prompts]);
 
+  return (<></>);
   return (
     <>
       <List>

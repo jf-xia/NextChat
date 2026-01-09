@@ -12,6 +12,8 @@ import { downloadAs, readFromFile } from "../utils";
 import { showToast } from "../components/ui-lib";
 import Locale from "../locales";
 import { createSyncClient, ProviderType } from "../utils/cloud";
+import { getToken, msalInstance } from "../auth/authConfig";
+import { createEmptyMask } from "./mask";
 
 export interface WebDavConfig {
   server: string;
@@ -123,9 +125,69 @@ export const useSyncStore = createPersistStore(
       const localState = getLocalAppState();
 
       try {
-        // {"chat-next-web-store": {"sessions": ,"currentSessionIndex": 0,"lastInput": "阿斯蒂芬規劃局可,","lastUpdateTime": 0,"_hasHydrated": true}}
-        const dataJsonStr = '{"chat-next-web-store": {"sessions": [{"id":"'+Date()+'","topic":"'+Date()+'","memoryPrompt":"","messages":[{"id":1753336668331,"date":"24\\/07\\/2025, 13:57:48","role":"user","content":"Hello, this is a test message."},{"id":751174,"date":"24\\/07\\/2025, 13:57:48","role":"assistant","content":"Hello! Your message has been received. How can I assist you today?","streaming":false}],"stat":{"tokenCount":0,"wordCount":0,"charCount":0},"lastUpdate":"2025-07-24T05:57:53.000000Z","lastSummarizeIndex":0,"clearContextIndex":0}]}}';
-        const parsedRemoteState = JSON.parse(dataJsonStr) as AppState;
+        const accessToken = await getToken(msalInstance);
+        if (!accessToken) {
+          showToast(Locale.Settings.Sync.ImportFailed);
+          return;
+        }
+
+        const res = await fetch("/api/sessions", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          console.error("[SyncApi] failed to fetch /api/sessions", res.status, text);
+          showToast(Locale.Settings.Sync.ImportFailed);
+          return;
+        }
+
+        const remoteSessions = (await res.json()) as any[];
+
+        const normalizedSessions = Array.isArray(remoteSessions)
+          ? remoteSessions.map((s) => {
+              let messages: any[] = [];
+              try {
+                if (typeof s?.messages === "string") {
+                  messages = JSON.parse(s.messages);
+                } else if (Array.isArray(s?.messages)) {
+                  messages = s.messages;
+                }
+              } catch (e) {
+                console.warn("[SyncApi] failed to parse session messages", e);
+              }
+
+              const lastUpdateMs = s?.lastUpdate
+                ? new Date(s.lastUpdate).getTime()
+                : Date.now();
+
+              return {
+                id: String(s?.id ?? ""),
+                topic: String(s?.topic ?? ""),
+                memoryPrompt: String(s?.memoryPrompt ?? ""),
+                messages,
+                stat: {
+                  tokenCount: Number(s?.tokenCount ?? 0),
+                  wordCount: Number(s?.wordCount ?? 0),
+                  charCount: Number(s?.charCount ?? 0),
+                },
+                lastUpdate: Number.isFinite(lastUpdateMs) ? lastUpdateMs : Date.now(),
+                lastSummarizeIndex: Number(s?.lastSummarizeIndex ?? 0),
+                clearContextIndex: Number(s?.clearContextIndex ?? 0),
+                mask: createEmptyMask(),
+              };
+            })
+          : [];
+
+        const parsedRemoteState = {
+          [StoreKey.Chat]: {
+            sessions: normalizedSessions,
+          },
+        } as any as AppState;
         mergeAppState(localState, parsedRemoteState);
         setLocalAppState(localState);
       } catch (e) {

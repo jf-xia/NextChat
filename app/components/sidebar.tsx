@@ -454,7 +454,7 @@ export function SideBar(props: { className?: string }) {
                 shadow
               />
             </div>
-            <div className={styles["sidebar-action"]}>
+            {/* <div className={styles["sidebar-action"]}>
               <Link to={Path.Settings}>
                 <IconButton
                   aria={Locale.Settings.Title}
@@ -462,7 +462,7 @@ export function SideBar(props: { className?: string }) {
                   shadow
                 />
               </Link>
-            </div>
+            </div> */}
           </>
         }
         secondaryAction={
