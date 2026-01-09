@@ -13,9 +13,59 @@ model_list:
       model: azure_ai/deepseek-v3
       api_key: os.environ/AZURE_AI_SERVICES_KEY
       api_base: os.environ/AZURE_AI_API_BASE
+  - model_name: gpt-image-1-mini
+    litellm_params:
+      model: azure/gpt-image-1-mini
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-image-1-mini
+  - model_name: gpt-image-1
+    litellm_params:
+      model: azure/gpt-image-1
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-image-1
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: azure/gpt-4o-mini
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-4o-mini
+  - model_name: gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/gpt-4o
+  - model_name: o3
+    litellm_params:
+      model: azure/o3
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+    model_info:
+      base_model: azure/o3
   - model_name: gpt-5
     litellm_params:
       model: azure/gpt-5
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+      api_key: os.environ/AZURE_API_KEY
+      drop_params: True
+      reasoning_effort:
+        effort: "minimal"
+        summary: "concise"
+  - model_name: gpt-5.2
+    litellm_params:
+      model: azure/gpt-5.2
       api_base: os.environ/AZURE_API_BASE
       api_version: os.environ/AZURE_API_VERSION
       api_key: os.environ/AZURE_API_KEY
@@ -29,44 +79,6 @@ model_list:
       # request_timeout: 600
     model_info:
       base_model: azure/gpt-5
-  - model_name: gpt-4o
-    litellm_params:
-      model: azure/gpt-4o
-      api_base: os.environ/AZURE_API_BASE
-      api_version: os.environ/AZURE_API_VERSION
-      api_key: os.environ/AZURE_API_KEY
-    model_info:
-      base_model: azure/gpt-4o
-  - model_name: gpt-4o-mini
-    litellm_params:
-      model: azure/gpt-4o-mini
-      api_base: os.environ/AZURE_API_BASE
-      api_version: os.environ/AZURE_API_VERSION
-      api_key: os.environ/AZURE_API_KEY
-    model_info:
-      base_model: azure/gpt-4o-mini
-  - model_name: gpt-image-1
-    litellm_params:
-      model: azure/gpt-image-1
-      api_base: os.environ/AZURE_API_BASE
-      api_version: os.environ/AZURE_API_VERSION
-      api_key: os.environ/AZURE_API_KEY
-    model_info:
-      base_model: azure/gpt-image-1
-  - model_name: gpt-image-1-mini
-    litellm_params:
-      model: azure/gpt-image-1-mini
-      api_base: os.environ/AZURE_API_BASE
-      api_version: os.environ/AZURE_API_VERSION
-      api_key: os.environ/AZURE_API_KEY
-    model_info:
-      base_model: azure/gpt-image-1-mini
-  - model_name: dall-e-3
-    litellm_params:
-      model: azure/dall-e-3
-      api_base: os.environ/AZURE_API2_BASE
-      api_version: os.environ/AZURE_API_VERSION
-      api_key: os.environ/AZURE_API2_KEY
   - model_name: gemini-2.5-flash
     litellm_params:
       model: vertex_ai/gemini-2.5-flash
@@ -79,21 +91,15 @@ model_list:
       VERTEXAI_PROJECT: os.environ/VERTEXAI_PROJECT
       VERTEXAI_LOCATION: os.environ/VERTEXAI_LOCATION
       vertex_ai_credentials: os.environ/GOOGLE_APPLICATION_CREDENTIALS
-      # use_in_pass_through: true
-      # safety_settings:
-      #   - category: HARM_CATEGORY_HARASSMENT
-      #     threshold: BLOCK_MEDIUM_AND_ABOVE
-      #   - category: HARM_CATEGORY_HATE_SPEECH
-      #     threshold: BLOCK_MEDIUM_AND_ABOVE
-      #   - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
-      #     threshold: BLOCK_MEDIUM_AND_ABOVE
-      #   - category: HARM_CATEGORY_DANGEROUS_CONTENT
-      #     threshold: BLOCK_MEDIUM_AND_ABOVE
-      #   - category: HARM_CATEGORY_UNSPECIFIED
-      #     threshold: BLOCK_MEDIUM_AND_ABOVE
   - model_name: gemini-2.5-pro
     litellm_params:
       model: vertex_ai/gemini-2.5-pro
+      VERTEXAI_PROJECT: os.environ/VERTEXAI_PROJECT
+      VERTEXAI_LOCATION: os.environ/VERTEXAI_LOCATION
+      vertex_ai_credentials: os.environ/GOOGLE_APPLICATION_CREDENTIALS
+  - model_name: gemini-3-pro-preview
+    litellm_params:
+      model: vertex_ai/gemini-3-flash-preview
       VERTEXAI_PROJECT: os.environ/VERTEXAI_PROJECT
       VERTEXAI_LOCATION: os.environ/VERTEXAI_LOCATION
       vertex_ai_credentials: os.environ/GOOGLE_APPLICATION_CREDENTIALS
@@ -109,6 +115,18 @@ model_list:
       VERTEXAI_PROJECT: os.environ/VERTEXAI_PROJECT
       VERTEXAI_LOCATION: os.environ/VERTEXAI_LOCATION
       vertex_ai_credentials: os.environ/GOOGLE_APPLICATION_CREDENTIALS
+      # use_in_pass_through: true
+      # safety_settings:
+      #   - category: HARM_CATEGORY_HARASSMENT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_HATE_SPEECH
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_DANGEROUS_CONTENT
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
+      #   - category: HARM_CATEGORY_UNSPECIFIED
+      #     threshold: BLOCK_MEDIUM_AND_ABOVE
 
 litellm_settings:
   json_logs: true # JSON 格式日誌
