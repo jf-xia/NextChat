@@ -22,6 +22,7 @@ COPY . .
 ARG ENV_FILE=.env
 COPY ${ENV_FILE} ./.env.local
 
+RUN yarn run prisma:generate
 RUN yarn build
 
 FROM base AS runner

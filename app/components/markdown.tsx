@@ -267,7 +267,7 @@ function tryWrapHtmlCode(text: string) {
     );
 }
 
-function _MarkDownContent(props: { content: string }) {
+function MarkDownContent(props: { content: string }) {
   const isError = useMemo(() => {
     return props.content.includes("(chat_ai_error_msg:");
   }, [props.content]);
@@ -321,7 +321,7 @@ function _MarkDownContent(props: { content: string }) {
   );
 }
 
-export const MarkdownContent = React.memo(_MarkDownContent);
+export const MarkdownContent = React.memo(MarkDownContent);
 
 export function Markdown(
   props: {

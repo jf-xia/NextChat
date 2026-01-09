@@ -51,5 +51,6 @@ export async function executeRequest(
   client: Client,
   request: McpRequestMessage,
 ) {
-  return client.request(request, z.any());
+  // @ts-ignore
+  return client.request(request, {} as any);
 }

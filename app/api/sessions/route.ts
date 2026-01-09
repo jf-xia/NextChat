@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { getUsernameByToken } from "../auth";
 import { prismaMysql } from "@/lib/prisma-mysql";
 
 export const runtime = "nodejs";
+
+type SessionType = Prisma.AiSessionGetPayload<{
+  select: {
+    id: true;
+    topic: true;
+    memoryPrompt: true;
+    messages: true;
+    tokenCount: true;
+    wordCount: true;
+    charCount: true;
+    lastUpdate: true;
+    lastSummarizeIndex: true;
+    clearContextIndex: true;
+  };
+}>;
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,7 +55,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(
-      sessions.map((s) => ({
+      sessions.map((s: SessionType) => ({
         id: s.id.toString(),
         topic: s.topic,
         memoryPrompt: s.memoryPrompt,
