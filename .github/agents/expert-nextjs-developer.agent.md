@@ -1,6 +1,5 @@
 ---
 description: "Expert Next.js 14 developer specializing in App Router, Server Components, Cache Components, Turbopack, and modern React patterns with TypeScript"
-model: "GPT-5.2"
 tools: ['vscode', 'execute', 'read', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'agent', 'ms-vscode.vscode-websearchforcopilot/websearch', 'todo']
 ---
 

@@ -31,20 +31,20 @@ model_list:
       base_model: azure/gpt-image-1
   - model_name: gpt-4o-mini
     litellm_params:
-      model: azure/gpt-4o-mini
+      model: azure/gpt-4.1-mini
       api_base: os.environ/AZURE_API_BASE
       api_version: os.environ/AZURE_API_VERSION
       api_key: os.environ/AZURE_API_KEY
     model_info:
-      base_model: azure/gpt-4o-mini
+      base_model: azure/gpt-4.1-mini
   - model_name: gpt-4o
     litellm_params:
-      model: azure/gpt-4o
+      model: azure/gpt-4.1
       api_base: os.environ/AZURE_API_BASE
       api_version: os.environ/AZURE_API_VERSION
       api_key: os.environ/AZURE_API_KEY
     model_info:
-      base_model: azure/gpt-4o
+      base_model: azure/gpt-4.1
   - model_name: o3
     litellm_params:
       model: azure/o3
