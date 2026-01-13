@@ -32,7 +32,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "www.hsu.edu.hk",
+        hostname: "*.hsu.edu.hk",
       },
     ],
   },
