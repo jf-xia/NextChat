@@ -362,8 +362,8 @@ export function SideBar(props: { className?: string }) {
             <Image
               src={logoUrl}
               alt={appName}
-              width={33 * 3}
-              height={33 * 3}
+              width={60}
+              height={60}
               className={styles["sidebar-logo-image"]}
             />
           ) : (
