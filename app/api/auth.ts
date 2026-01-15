@@ -269,6 +269,8 @@ export async function getLLMKey(key: any): Promise<any> {
   }
 }
 
+// TODO: llm/key/list?key_alias=jackxia@hsu.edu.hk&return_full_object=true
+
 export async function generateKey(key: string, username: string): Promise<any> {
   const generateKeyUrl = `${LITELLM_BASE_URL}/key/generate`;
   const body = {
@@ -279,9 +281,9 @@ export async function generateKey(key: string, username: string): Promise<any> {
     budget_duration: "1mo",
     max_parallel_requests: 2,
     rpm_limit: 10,
+    key_alias: username,
     // tpm_limit: 20000,
     // models: [],
-    // key_alias: username+year,
     // key_type: "read_only", //llm_api, management, read_only, default
     // duration: "30d", // TODO: Set Key validity duration
   };
