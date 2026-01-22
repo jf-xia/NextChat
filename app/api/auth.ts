@@ -281,7 +281,7 @@ export async function generateKey(key: string, username: string): Promise<any> {
     budget_duration: "1mo",
     max_parallel_requests: 2,
     rpm_limit: 10,
-    key_alias: username,
+    key_alias: username+year,
     // tpm_limit: 20000,
     // models: [],
     // key_type: "read_only", //llm_api, management, read_only, default

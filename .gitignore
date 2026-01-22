@@ -48,6 +48,8 @@ dev
 
 masks.json
 
+.swc
+
 # mcp config
 app/mcp/mcp_config.json
 
