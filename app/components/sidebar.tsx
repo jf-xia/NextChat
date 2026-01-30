@@ -463,6 +463,15 @@ export function SideBar(props: { className?: string }) {
                 />
               </Link>
             </div> */}
+            <div className={styles["sidebar-action"]}>
+              <Link to={Path.LLM}>
+                <IconButton
+                  aria={"LLM Geteway"}
+                  icon={<SettingsIcon />}
+                  shadow
+                />
+              </Link>
+            </div>
           </>
         }
         secondaryAction={

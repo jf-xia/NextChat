@@ -1,0 +1,81 @@
+# Feature map (draft)
+# 用途：將檔案自動歸到 Feature（domain/業務）分組。請檢查 `docs/analysis/feature-map-suggestion.md` 以取得背景與建議。
+# 規則優先順序（由高到低）：path match > export name match > keyword match
+
+features:
+  - name: auth
+    description: Authentication, tokens, auth routes and MSAL config
+    paths:
+      - "app/api/auth.*"
+      - "auth/**"
+      - "app/auth/**"
+    exports:
+      - validateAccessToken
+      - getAuthClaims
+      - auth
+      - GET
+      - POST
+    keywords:
+      - auth
+      - token
+      - msal
+      - login
+
+  - name: providers
+    description: Provider adapters and provider-facing API handlers (OpenAI, Anthropic, etc.)
+    paths:
+      - "app/api/*"
+      - "api/**/*"
+    exports:
+      - handle
+      - request
+      - runtime
+    keywords:
+      - provider
+      - handle
+      - request
+
+  - name: ui
+    description: React components, pages, locales and UI-related code
+    paths:
+      - "components/**"
+      - "app/**/*.tsx"
+      - "app/**/*page*"
+      - "app/**/*layout*"
+    exports:
+      - default
+      - metadata
+    keywords:
+      - React
+      - useState
+      - useEffect
+
+  - name: utils
+    description: Utilities, clients and core helper libraries
+    paths:
+      - "lib/**"
+      - "app/utils/**"
+      - "client/**"
+    exports: []
+    keywords:
+      - util
+      - helper
+      - create
+      - fetch
+
+  - name: others
+    description: others
+    paths:
+      - "app/command.ts"
+      - "app/constant.ts"
+      - "public/serviceWorker.js"
+      - "app/client/api.ts"
+      - "next-env.d.ts"
+      - "app/typing.ts"
+      - "public/audio-processor.js"
+      - "public/serviceWorkerRegister.js"
+      - "app/client/controller.ts"
+      - "app/store/index.ts"
+
+# fallback group for files that don't match any feature rules
+fallback: others

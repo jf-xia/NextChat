@@ -88,6 +88,10 @@ const McpMarketPage = dynamic(
   },
 );
 
+const LLMPage = dynamic(async () => (await import("./llm")).LlmAuthPage, {
+  loading: () => <Loading noLogo />,
+});
+
 export function useSwitchTheme() {
   const config = useAppConfig();
 
@@ -207,6 +211,7 @@ function Screen() {
             <Route path={Path.Masks} element={<MaskPage />} />
             <Route path={Path.Plugins} element={<PluginPage />} />
             <Route path={Path.McpMarket} element={<McpMarketPage />} /> */}
+            <Route path={Path.LLM} element={<LLMPage />} />
             <Route path={Path.Settings} element={<Settings />} />
             <Route path={Path.SearchChat} element={<SearchChat />} />
             <Route path={Path.Chat} element={<Chat />} />

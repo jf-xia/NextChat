@@ -20,7 +20,12 @@
     "prisma:studio": "prisma studio",
     "proxy-dev": "sh ./scripts/init-proxy.sh && proxychains -f ./scripts/proxychains.conf yarn dev",
     "test": "node --no-warnings --experimental-vm-modules $(yarn bin jest) --watch",
-    "test:ci": "node --no-warnings --experimental-vm-modules $(yarn bin jest) --ci"
+    "test:ci": "node --no-warnings --experimental-vm-modules $(yarn bin jest) --ci",
+    "generate:docs": "node --loader ts-node/esm scripts/generate-docs.ts",
+    "generate:docs:tsx": "tsx scripts/generate-docs.ts",
+    "analyze:tsmorph": "node ./tools/tsmorph-analyze.mjs",
+    "generate:analysis-docs": "node ./tools/generate-docs.mjs",
+    "analyze:all": "yarn analyze:tsmorph && yarn generate:analysis-docs"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.26.2",
@@ -70,6 +75,7 @@
     "zustand": "^4.3.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/cli": "1.5.11",
     "@testing-library/dom": "^10.4.0",
@@ -95,8 +101,10 @@
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^13.2.2",
     "prettier": "^3.0.2",
+    "ts-morph": "^27.0.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.16.0",
+    "typedoc": "^0.28.16",
     "typescript": "5.2.2",
     "utf-8-validate": "^6.0.6",
     "watch": "^1.0.2",
